@@ -1,4 +1,5 @@
 import 'dart:convert';
+import '../../../core/utils/formatters.dart';
 
 /// Konfigurasi Kapasitas Mesin Kapal & Kuota Maksimal Solar Subsidi Nelayan SPBN
 class BoatEngineTier {
@@ -92,6 +93,11 @@ class SiAntriTicket {
   String get driverName => fishermanName;
   String get plateNumber => recommendationNumber;
   BoatEngineTier get vehicleType => engineTier;
+
+  // Format jam dan estimasi tunggu dengan padLeft 2-digit (mencegah "0:3")
+  String get formattedEstimatedTime => AppFormatters.formatTimeWib(estimatedTime);
+  String get formattedEstimatedWait =>
+      AppFormatters.formatEstimatedWait(estimatedTime.difference(createdAt).inMinutes.clamp(1, 120));
 
   Map<String, dynamic> toQrPayload() {
     return {

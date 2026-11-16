@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antrian_solar/core/providers/navigation_provider.dart';
+import 'package:antrian_solar/core/utils/formatters.dart';
 import 'package:antrian_solar/features/settings/models/spbn_settings.dart';
 import 'package:antrian_solar/features/settings/providers/settings_provider.dart';
 import 'package:antrian_solar/features/siantri_solar/models/siantri_models.dart';
@@ -190,6 +192,80 @@ void main() {
       expect(state.latitude, equals(-7.239400));
       expect(state.longitude, equals(113.535600));
       expect(state.radiusMeters, equals(100.0));
+    });
+  });
+
+  group('AppFormatters Time Formatting Tests', () {
+    test('formatTime and formatTimeWib prevent 0:3 by using 2-digit padding', () {
+      final dt1 = DateTime(2026, 11, 16, 0, 3);
+      expect(AppFormatters.formatTime(dt1), equals('00:03'));
+      expect(AppFormatters.formatTimeWib(dt1), equals('00:03 WIB'));
+
+      final dt2 = DateTime(2026, 11, 16, 0, 15);
+      expect(AppFormatters.formatTime(dt2), equals('00:15'));
+      expect(AppFormatters.formatTimeWib(dt2), equals('00:15 WIB'));
+
+      final dt3 = DateTime(2026, 11, 16, 9, 5);
+      expect(AppFormatters.formatTime(dt3), equals('09:05'));
+      expect(AppFormatters.formatTimeWib(dt3), equals('09:05 WIB'));
+    });
+
+    test('formatEstimatedWait returns properly formatted text', () {
+      expect(AppFormatters.formatEstimatedWait(10), equals('± 10 Menit'));
+      expect(AppFormatters.formatEstimatedWait(8), equals('± 8 Menit'));
+    });
+  });
+
+  group('activeTicketProvider & bottomNavIndexProvider Integration Tests', () {
+    late ProviderContainer container;
+
+    setUp(() {
+      container = ProviderContainer();
+    });
+
+    tearDown(() {
+      container.dispose();
+    });
+
+    test('bottomNavIndexProvider defaults to 0 and can be changed to 3 (Pas QR)', () {
+      expect(container.read(bottomNavIndexProvider), equals(0));
+
+      container.read(bottomNavIndexProvider.notifier).setIndex(3);
+      expect(container.read(bottomNavIndexProvider), equals(3));
+
+      container.read(bottomNavIndexProvider.notifier).setIndex(0);
+      expect(container.read(bottomNavIndexProvider), equals(0));
+    });
+
+    test('activeTicketProvider syncs with registerQueue and clearTicket', () {
+      // 1. Initial state is null
+      expect(container.read(activeTicketProvider), isNull);
+
+      // 2. Register new ticket from Beranda
+      final ticket = container.read(siAntriProvider.notifier).registerQueue(
+        fishermanName: "Moh. Syafi'i",
+        recommendationNumber: 'REK-DKP-2026-084',
+        engineTier: kBoatEngineTiers[1], // 15 PK (45L)
+        requestedLiters: 45.0,
+      );
+
+      // Sinkronkan ke activeTicketProvider
+      container.read(activeTicketProvider.notifier).setTicket(ticket);
+
+      final active = container.read(activeTicketProvider);
+      expect(active, isNotNull);
+      expect(active?.queueNumber, equals('SLR-002'));
+      expect(active?.fishermanName, equals("Moh. Syafi'i"));
+      expect(active?.recommendationNumber, equals('REK-DKP-2026-084'));
+      expect(active?.engineTier.name, equals('Mesin 15 PK'));
+      expect(active?.requestedLiters, equals(45.0));
+      expect(active?.formattedEstimatedTime, contains('WIB'));
+      expect(active?.formattedEstimatedWait, contains('Menit'));
+
+      // 3. Clear ticket
+      container.read(activeTicketProvider.notifier).clearTicket();
+      expect(container.read(activeTicketProvider), isNull);
+      expect(container.read(siAntriProvider).currentTicket, isNull);
     });
   });
 }

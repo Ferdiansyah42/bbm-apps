@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/constants/app_colors.dart';
 import 'core/constants/app_constants.dart';
+import 'core/providers/navigation_provider.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'features/history/presentation/history_screen.dart';
@@ -83,17 +84,10 @@ class AntrianSolarApp extends ConsumerWidget {
   }
 }
 
-class MainNavigationShell extends StatefulWidget {
+class MainNavigationShell extends ConsumerWidget {
   const MainNavigationShell({super.key});
 
-  @override
-  State<MainNavigationShell> createState() => _MainNavigationShellState();
-}
-
-class _MainNavigationShellState extends State<MainNavigationShell> {
-  int _currentIndex = 0;
-
-  final List<Widget> _screens = const [
+  static const List<Widget> _screens = [
     SiAntriSolarScreen(),
     HomeDashboardScreen(),
     QueueScreen(),
@@ -102,10 +96,12 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentIndex = ref.watch(bottomNavIndexProvider);
+
     return Scaffold(
       body: IndexedStack(
-        index: _currentIndex,
+        index: currentIndex,
         children: _screens,
       ),
       bottomNavigationBar: Container(
@@ -113,8 +109,8 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
           border: Border(top: BorderSide(color: AppColors.border, width: 0.8)),
         ),
         child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) => setState(() => _currentIndex = index),
+          currentIndex: currentIndex,
+          onTap: (index) => ref.read(bottomNavIndexProvider.notifier).setIndex(index),
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.local_gas_station_outlined),

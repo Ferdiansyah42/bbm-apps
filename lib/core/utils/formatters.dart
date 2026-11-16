@@ -52,16 +52,30 @@ class AppFormatters {
     try {
       return _dateTimeFormat.format(dateTime);
     } catch (_) {
-      return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}';
+      final hh = dateTime.hour.toString().padLeft(2, '0');
+      final mm = dateTime.minute.toString().padLeft(2, '0');
+      final dd = dateTime.day.toString().padLeft(2, '0');
+      final mo = dateTime.month.toString().padLeft(2, '0');
+      return '$dd/$mo/${dateTime.year} $hh:$mm WIB';
     }
   }
 
-  /// Format waktu saja
+  /// Format waktu saja dengan padding 2 digit (contoh: "00:15")
   static String formatTime(DateTime dateTime) {
-    try {
-      return _timeFormat.format(dateTime);
-    } catch (_) {
-      return '${dateTime.hour}:${dateTime.minute}';
-    }
+    final hh = dateTime.hour.toString().padLeft(2, '0');
+    final mm = dateTime.minute.toString().padLeft(2, '0');
+    return '$hh:$mm';
+  }
+
+  /// Format waktu lengkap dengan zona WIB dan padding 2 digit (contoh: "00:15 WIB")
+  static String formatTimeWib(DateTime dateTime) {
+    final hh = dateTime.hour.toString().padLeft(2, '0');
+    final mm = dateTime.minute.toString().padLeft(2, '0');
+    return '$hh:$mm WIB';
+  }
+
+  /// Format estimasi menit tunggu (contoh: "± 10 Menit")
+  static String formatEstimatedWait(int minutes) {
+    return '± $minutes Menit';
   }
 }

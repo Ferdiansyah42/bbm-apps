@@ -190,3 +190,27 @@ class SiAntriNotifier extends Notifier<SiAntriState> {
 final siAntriProvider = NotifierProvider<SiAntriNotifier, SiAntriState>(
   SiAntriNotifier.new,
 );
+
+/// Provider global untuk memegang tiket antrean nelayan aktif saat ini
+class ActiveTicketNotifier extends Notifier<SiAntriTicket?> {
+  @override
+  SiAntriTicket? build() {
+    // Sinkronkan dengan currentTicket di siAntriProvider
+    return ref.watch(siAntriProvider.select((s) => s.currentTicket));
+  }
+
+  void setTicket(SiAntriTicket ticket) {
+    state = ticket;
+  }
+
+  void clearTicket() {
+    state = null;
+    ref.read(siAntriProvider.notifier).cancelTicket();
+  }
+}
+
+final activeTicketProvider =
+    NotifierProvider<ActiveTicketNotifier, SiAntriTicket?>(
+  ActiveTicketNotifier.new,
+);
+

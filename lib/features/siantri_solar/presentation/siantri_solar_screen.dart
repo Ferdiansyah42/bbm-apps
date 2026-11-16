@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/providers/navigation_provider.dart';
 import '../../../core/utils/formatters.dart';
 import '../../settings/models/spbn_settings.dart';
 import '../../settings/presentation/settings_screen.dart';
@@ -80,11 +81,16 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
           requestedLiters: liters,
         );
 
+    // 1. Simpan ke activeTicketProvider
+    ref.read(activeTicketProvider.notifier).setTicket(ticket);
+
+    // 2. Berpindah otomatis ke tab "Pas QR" (indeks tab Pas QR = 3)
+    ref.read(bottomNavIndexProvider.notifier).setIndex(3);
+
+    // 3. Tampilkan snackbar notifikasi singkat
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Tiket antrean ${ticket.queueNumber} atas nama $fishermanName berhasil dibuat!',
-        ),
+      const SnackBar(
+        content: Text('Antrean berhasil dibuat!'),
         backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
       ),
@@ -287,23 +293,22 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
             const SizedBox(height: 14),
 
             // ==========================================
-            // 3. KARTU TIKET ANTREAN DIGITAL (BOARDING PASS)
+            // BANNER PEMBERITAHUAN TIKET AKTIF (JIKA ADA)
             // ==========================================
             if (state.currentTicket != null) ...[
-              _buildDigitalTicketBoardingPass(context, state.currentTicket!, settings),
+              _buildActiveTicketNoticeBanner(context, state.currentTicket!),
               const SizedBox(height: 14),
             ],
 
             // ==========================================
-            // 4. MODUL FORM AMBIL NOMOR ANTREAN NELAYAN
+            // 3. MODUL FORM AMBIL NOMOR ANTREAN NELAYAN (SELALU TAMPIL)
             // ==========================================
-            if (state.currentTicket == null) ...[
-              _buildFishermanRegistrationForm(context, state, settings, isAllowed),
-              const SizedBox(height: 14),
-            ],
+            _buildFishermanRegistrationForm(context, state, settings, isAllowed),
+
+            const SizedBox(height: 14),
 
             // ==========================================
-            // 5. DAFTAR ANTREAN LIVE (FIFO)
+            // 4. DAFTAR ANTREAN LIVE (FIFO)
             // ==========================================
             _buildLiveQueueSection(context, state),
 
@@ -757,6 +762,70 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
   }
 
   // ==========================================
+  // BANNER PEMBERITAHUAN TIKET AKTIF
+  // ==========================================
+  Widget _buildActiveTicketNoticeBanner(BuildContext context, SiAntriTicket ticket) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0FDF4),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFBBF7D0), width: 1.2),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(7),
+            decoration: const BoxDecoration(
+              color: Color(0xFF10B981),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.check, color: Colors.white, size: 16),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Tiket Aktif: ${ticket.queueNumber} (${ticket.fishermanName})',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF065F46),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${ticket.engineTier.name} • ${ticket.requestedLiters.toInt()} L • Est: ${ticket.formattedEstimatedTime}',
+                  style: const TextStyle(fontSize: 11, color: Color(0xFF047857)),
+                ),
+              ],
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              ref.read(bottomNavIndexProvider.notifier).setIndex(3);
+            },
+            icon: const Icon(Icons.qr_code_2_rounded, size: 16),
+            label: const Text(
+              'Buka Pas QR',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF0D9488),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              visualDensity: VisualDensity.compact,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==========================================
   // WIDGET 3: KARTU TIKET ANTREAN DIGITAL (BOARDING PASS)
   // ==========================================
   Widget _buildDigitalTicketBoardingPass(
@@ -901,7 +970,7 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                     Expanded(
                       child: _buildTicketDetailItem(
                         label: 'ESTIMASI PENGISIAN',
-                        value: AppFormatters.formatTime(ticket.estimatedTime),
+                        value: ticket.formattedEstimatedTime,
                         icon: Icons.access_time_filled_rounded,
                       ),
                     ),
