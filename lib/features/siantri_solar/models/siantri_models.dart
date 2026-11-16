@@ -143,7 +143,74 @@ class LiveQueueItem {
 
   bool get isServing => status.toUpperCase() == 'SERVING';
   bool get isWaiting => status.toUpperCase() == 'WAITING';
+  bool get isCompleted => status.toUpperCase() == 'COMPLETED';
+  bool get isSkipped => status.toUpperCase() == 'SKIPPED';
+
+  LiveQueueItem copyWith({
+    String? queueNumber,
+    String? recommendationNumber,
+    String? fishermanName,
+    String? engineName,
+    double? liters,
+    String? status,
+    String? estimatedWaitTime,
+  }) {
+    return LiveQueueItem(
+      queueNumber: queueNumber ?? this.queueNumber,
+      recommendationNumber: recommendationNumber ?? this.recommendationNumber,
+      fishermanName: fishermanName ?? this.fishermanName,
+      engineName: engineName ?? this.engineName,
+      liters: liters ?? this.liters,
+      status: status ?? this.status,
+      estimatedWaitTime: estimatedWaitTime ?? this.estimatedWaitTime,
+    );
+  }
 
   String get qrData =>
       'SIANTRI-SPBN-MADURA:$queueNumber:$recommendationNumber:${liters.toInt()}';
+}
+
+/// Status ketersediaan solar di stasiun SPBN
+enum SolarAvailabilityStatus {
+  available('Tersedia'),
+  runningLow('Menipis'),
+  empty('Habis'),
+  tankerOtw('Tangki OTW');
+
+  final String label;
+  const SolarAvailabilityStatus(this.label);
+}
+
+/// Peran aktif pengguna aplikasi
+enum UserRole {
+  fisherman('Mode Nelayan'),
+  operator('Mode Operator SPBN');
+
+  final String label;
+  const UserRole(this.label);
+}
+
+/// Model transaksi pengisian yang telah diselesaikan oleh operator SPBN
+class CompletedTransaction {
+  final String id;
+  final String queueNumber;
+  final String fishermanName;
+  final String recommendationNumber;
+  final String engineName;
+  final double liters;
+  final DateTime completedAt;
+  final String notes;
+
+  const CompletedTransaction({
+    required this.id,
+    required this.queueNumber,
+    required this.fishermanName,
+    required this.recommendationNumber,
+    required this.engineName,
+    required this.liters,
+    required this.completedAt,
+    this.notes = 'Terverifikasi Operator Nozzle SPBN',
+  });
+
+  String get formattedTime => AppFormatters.formatTimeWib(completedAt);
 }

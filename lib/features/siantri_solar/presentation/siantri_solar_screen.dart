@@ -5,6 +5,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/providers/navigation_provider.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/widgets/role_switcher_pill.dart';
 import '../../settings/models/spbn_settings.dart';
 import '../../settings/presentation/settings_screen.dart';
 import '../../settings/providers/settings_provider.dart';
@@ -266,6 +267,7 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
           ],
         ),
         actions: [
+          const RoleSwitcherPill(),
           IconButton(
             tooltip: 'Pengaturan SPBN & Geofencing',
             icon: const Icon(Icons.settings_outlined, color: AppColors.primary),

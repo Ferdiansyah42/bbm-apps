@@ -8,9 +8,12 @@ import 'features/auth/presentation/login_screen.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'features/history/presentation/history_screen.dart';
 import 'features/home_geofence/presentation/home_dashboard_screen.dart';
+import 'features/operator/presentation/operator_panel_screen.dart';
 import 'features/queue/presentation/queue_screen.dart';
 import 'features/quota_qr/presentation/digital_pass_screen.dart';
+import 'features/siantri_solar/models/siantri_models.dart';
 import 'features/siantri_solar/presentation/siantri_solar_screen.dart';
+import 'features/siantri_solar/providers/siantri_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -97,7 +100,12 @@ class MainNavigationShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final role = ref.watch(appRoleProvider);
     final currentIndex = ref.watch(bottomNavIndexProvider);
+
+    if (role == UserRole.operator) {
+      return const OperatorPanelScreen();
+    }
 
     return Scaffold(
       body: IndexedStack(
