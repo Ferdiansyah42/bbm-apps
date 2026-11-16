@@ -27,7 +27,7 @@ void main() {
 
       // Verify Nelayan account
       final nelayan = state.registeredAccounts.firstWhere((a) => a.isNelayan);
-      expect(nelayan.nik, equals('3528011204850001'));
+      expect(nelayan.email, equals('syafii.nelayan@gmail.com'));
       expect(nelayan.noHp, equals('081234567890'));
       expect(nelayan.password, equals('123456'));
       expect(nelayan.nama, equals("Moh. Syafi'i"));
@@ -36,7 +36,7 @@ void main() {
 
       // Verify Operator account
       final operator = state.registeredAccounts.firstWhere((a) => a.isOperator);
-      expect(operator.nik, equals('admin_spbn'));
+      expect(operator.email, equals('operator.spbn@gmail.com'));
       expect(operator.nama, equals('Petugas SPBN Branta'));
       expect(operator.password, equals('123456'));
       expect(operator.role, equals('operator'));
@@ -51,12 +51,12 @@ void main() {
       expect(container.read(authNotifierProvider).errorMessage, contains('wajib diisi'));
 
       // 2. Wrong password
-      ok = await notifier.login(identifier: '3528011204850001', password: 'wrongpassword');
+      ok = await notifier.login(identifier: 'syafii.nelayan@gmail.com', password: 'wrongpassword');
       expect(ok, isFalse);
       expect(container.read(authNotifierProvider).errorMessage, contains('salah'));
 
-      // 3. Login by NIK
-      ok = await notifier.login(identifier: '3528011204850001', password: '123456');
+      // 3. Login by Email
+      ok = await notifier.login(identifier: 'syafii.nelayan@gmail.com', password: '123456');
       expect(ok, isTrue);
       expect(container.read(authNotifierProvider).currentUser?.nama, equals("Moh. Syafi'i"));
 
@@ -69,9 +69,9 @@ void main() {
       expect(ok, isTrue);
       expect(container.read(authNotifierProvider).currentUser?.nama, equals("Moh. Syafi'i"));
 
-      // 6. Login Operator by ID
+      // 6. Login Operator by Email
       notifier.logout();
-      ok = await notifier.login(identifier: 'admin_spbn', password: '123456');
+      ok = await notifier.login(identifier: 'operator.spbn@gmail.com', password: '123456');
       expect(ok, isTrue);
       expect(container.read(authNotifierProvider).currentUser?.isOperator, isTrue);
     });
@@ -82,7 +82,7 @@ void main() {
       const newAccount = UserAccount(
         id: 'nelayan_2',
         nama: 'Pak Badri',
-        nik: '3528011204850099',
+        email: 'badri.nelayan@gmail.com',
         noHp: '081987654321',
         password: 'password123',
         role: 'nelayan',
@@ -111,6 +111,9 @@ void main() {
       expect(container.read(authNotifierProvider).currentUser?.isNelayan, isTrue);
       expect(container.read(authNotifierProvider).currentUser?.nama, equals("Moh. Syafi'i"));
 
+      notifier.simulateGoogleLoginNelayan();
+      expect(container.read(authNotifierProvider).currentUser?.email, equals('syafii.nelayan@gmail.com'));
+
       notifier.demoLoginOperator();
       expect(container.read(authNotifierProvider).currentUser?.isOperator, isTrue);
       expect(container.read(authNotifierProvider).currentUser?.nama, equals('Petugas SPBN Branta'));
@@ -131,7 +134,9 @@ void main() {
 
       expect(find.text('SiAntri Solar Nelayan'), findsOneWidget);
       expect(find.text('Masuk ke Sistem Antrean'), findsOneWidget);
+      expect(find.text('Alamat Email / Gmail'), findsOneWidget);
       expect(find.text('Masuk'), findsOneWidget);
+      expect(find.text('Masuk dengan Google (Simulasi Gmail)'), findsOneWidget);
       expect(find.text('Daftar Akun Nelayan'), findsOneWidget);
       expect(find.text('Demo Nelayan'), findsOneWidget);
       expect(find.text('Demo Operator'), findsOneWidget);
@@ -150,10 +155,34 @@ void main() {
 
       expect(find.text('Daftar Akun Nelayan'), findsOneWidget);
       expect(find.text('Nama Lengkap Nelayan'), findsOneWidget);
-      expect(find.text('Nomor Induk Kependudukan (NIK)'), findsOneWidget);
+      expect(find.text('Alamat Email / Gmail'), findsOneWidget);
       expect(find.text('Nomor Handphone / WhatsApp'), findsOneWidget);
       expect(find.text('Nomor Surat Rekomendasi DKP'), findsOneWidget);
       expect(find.text('Daftar & Masuk'), findsOneWidget);
+    });
+
+    testWidgets('Tapping Masuk dengan Google simulates instant fisherman login', (tester) async {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            home: LoginScreen(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      final googleBtn = find.text('Masuk dengan Google (Simulasi Gmail)');
+      expect(googleBtn, findsOneWidget);
+      await tester.tap(googleBtn);
+      await tester.pumpAndSettle();
+
+      expect(container.read(authNotifierProvider).currentUser?.email, equals('syafii.nelayan@gmail.com'));
+      expect(container.read(authNotifierProvider).currentUser?.isNelayan, isTrue);
     });
   });
 }

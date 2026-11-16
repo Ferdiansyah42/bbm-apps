@@ -16,7 +16,7 @@ class RegisterScreen extends ConsumerStatefulWidget {
 class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
-  final _nikController = TextEditingController();
+  final _emailController = TextEditingController();
   final _noHpController = TextEditingController();
   final _rekomendasiController = TextEditingController(text: 'REK-DKP-2026-099');
   final _passwordController = TextEditingController();
@@ -29,7 +29,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   @override
   void dispose() {
     _namaController.dispose();
-    _nikController.dispose();
+    _emailController.dispose();
     _noHpController.dispose();
     _rekomendasiController.dispose();
     _passwordController.dispose();
@@ -41,7 +41,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final nama = _namaController.text.trim();
-    final nik = _nikController.text.trim();
+    final email = _emailController.text.trim().toLowerCase();
     final noHp = _noHpController.text.trim();
     final rekomendasi = _rekomendasiController.text.trim().toUpperCase();
     final password = _passwordController.text.trim();
@@ -49,7 +49,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final newAccount = UserAccount(
       id: 'nelayan_${DateTime.now().millisecondsSinceEpoch}',
       nama: nama,
-      nik: nik,
+      email: email,
       noHp: noHp,
       password: password,
       role: 'nelayan',
@@ -188,28 +188,25 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                         const SizedBox(height: 14),
 
-                        // 2. NIK (16 digit)
+                        // 2. Alamat Email / Gmail Nelayan
                         TextFormField(
-                          controller: _nikController,
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(16),
-                          ],
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
                           decoration: const InputDecoration(
-                            labelText: 'Nomor Induk Kependudukan (NIK)',
-                            hintText: '16 digit angka KTP',
-                            prefixIcon: Icon(Icons.badge_outlined),
+                            labelText: 'Alamat Email / Gmail',
+                            hintText: 'Contoh: syafii.nelayan@gmail.com',
+                            prefixIcon: Icon(Icons.email_outlined),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.all(Radius.circular(12)),
                             ),
                           ),
                           validator: (val) {
                             if (val == null || val.trim().isEmpty) {
-                              return 'NIK wajib diisi';
+                              return 'Alamat Email / Gmail wajib diisi';
                             }
-                            if (val.trim().length != 16) {
-                              return 'NIK harus terdiri dari 16 digit';
+                            final clean = val.trim().toLowerCase();
+                            if (!clean.contains('@') || !clean.contains('.')) {
+                              return 'Format email tidak valid (contoh: nelayan@gmail.com)';
                             }
                             return null;
                           },

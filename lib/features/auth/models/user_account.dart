@@ -2,7 +2,7 @@
 class UserAccount {
   final String id;
   final String nama;
-  final String nik;
+  final String email;
   final String noHp;
   final String password;
   final String role; // 'nelayan' atau 'operator'
@@ -12,7 +12,7 @@ class UserAccount {
   const UserAccount({
     required this.id,
     required this.nama,
-    required this.nik,
+    required this.email,
     required this.noHp,
     required this.password,
     required this.role,
@@ -26,7 +26,7 @@ class UserAccount {
   UserAccount copyWith({
     String? id,
     String? nama,
-    String? nik,
+    String? email,
     String? noHp,
     String? password,
     String? role,
@@ -36,7 +36,7 @@ class UserAccount {
     return UserAccount(
       id: id ?? this.id,
       nama: nama ?? this.nama,
-      nik: nik ?? this.nik,
+      email: email ?? this.email,
       noHp: noHp ?? this.noHp,
       password: password ?? this.password,
       role: role ?? this.role,

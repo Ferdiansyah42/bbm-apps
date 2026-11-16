@@ -13,7 +13,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _identifierController = TextEditingController(text: '3528011204850001');
+  final _identifierController = TextEditingController(text: 'syafii.nelayan@gmail.com');
   final _passwordController = TextEditingController(text: '123456');
   bool _obscurePassword = true;
 
@@ -154,15 +154,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Input NIK atau No HP
+                          // Input Email / Gmail atau No HP
                           TextFormField(
                             controller: _identifierController,
-                            keyboardType: TextInputType.text,
+                            keyboardType: TextInputType.emailAddress,
                             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
                             decoration: const InputDecoration(
-                              labelText: 'NIK / Nomor Handphone / ID',
-                              hintText: 'Contoh: 3528011204850001',
-                              prefixIcon: Icon(Icons.badge_outlined, color: AppColors.primary),
+                              labelText: 'Alamat Email / Gmail',
+                              hintText: 'Contoh: syafii.nelayan@gmail.com',
+                              prefixIcon: Icon(Icons.email_outlined, color: AppColors.primary),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.all(Radius.circular(12)),
                               ),
@@ -170,7 +170,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                             validator: (val) {
                               if (val == null || val.trim().isEmpty) {
-                                return 'NIK atau Nomor HP wajib diisi';
+                                return 'Alamat Email / Gmail wajib diisi';
+                              }
+                              if (!val.contains('@')) {
+                                return 'Format email harus valid (mengandung @)';
                               }
                               return null;
                             },
@@ -230,6 +233,41 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primary,
                                 foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          // Tombol Sekunder Masuk dengan Google (Simulasi Gmail)
+                          SizedBox(
+                            height: 46,
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                ref.read(authNotifierProvider.notifier).simulateGoogleLoginNelayan();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Berhasil masuk dengan Google: syafii.nelayan@gmail.com'),
+                                    backgroundColor: AppColors.success,
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.g_mobiledata_rounded, size: 28, color: Color(0xFFEA4335)),
+                              label: const Text(
+                                'Masuk dengan Google (Simulasi Gmail)',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor: const Color(0xFFF8FAFC),
+                                side: const BorderSide(color: Color(0xFFE2E8F0)),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),

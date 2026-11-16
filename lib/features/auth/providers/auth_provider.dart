@@ -38,7 +38,7 @@ class AuthNotifier extends Notifier<AuthState> {
     UserAccount(
       id: 'nelayan_1',
       nama: "Moh. Syafi'i",
-      nik: '3528011204850001',
+      email: 'syafii.nelayan@gmail.com',
       noHp: '081234567890',
       password: '123456',
       role: 'nelayan',
@@ -48,7 +48,7 @@ class AuthNotifier extends Notifier<AuthState> {
     UserAccount(
       id: 'admin_spbn',
       nama: 'Petugas SPBN Branta',
-      nik: 'admin_spbn',
+      email: 'operator.spbn@gmail.com',
       noHp: '081111222333',
       password: '123456',
       role: 'operator',
@@ -77,20 +77,22 @@ class AuthNotifier extends Notifier<AuthState> {
     if (cleanId.isEmpty || cleanPass.isEmpty) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'NIK/No. HP dan Password wajib diisi.',
+        errorMessage: 'Email/No. HP dan Password wajib diisi.',
       );
       return false;
     }
 
     final matched = state.registeredAccounts.where((acc) {
-      final idMatch = acc.nik == cleanId || acc.noHp == cleanId || acc.id == cleanId;
+      final idMatch = acc.email.toLowerCase() == cleanId.toLowerCase() ||
+          acc.noHp == cleanId ||
+          acc.id == cleanId;
       return idMatch && acc.password == cleanPass;
     }).firstOrNull;
 
     if (matched == null) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'NIK/No. HP atau Password salah. Silakan periksa kembali.',
+        errorMessage: 'Email/No. HP atau Password salah. Silakan periksa kembali.',
       );
       return false;
     }
@@ -109,13 +111,15 @@ class AuthNotifier extends Notifier<AuthState> {
     await Future.delayed(const Duration(milliseconds: 300));
 
     final exists = state.registeredAccounts.any(
-      (acc) => acc.nik == newAccount.nik || acc.noHp == newAccount.noHp,
+      (acc) =>
+          acc.email.toLowerCase() == newAccount.email.toLowerCase() ||
+          acc.noHp == newAccount.noHp,
     );
 
     if (exists) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'NIK atau Nomor HP sudah terdaftar. Silakan login.',
+        errorMessage: 'Email atau Nomor HP sudah terdaftar. Silakan login.',
       );
       return false;
     }
@@ -137,6 +141,10 @@ class AuthNotifier extends Notifier<AuthState> {
       currentUser: demo,
       clearErrorMessage: true,
     );
+  }
+
+  void simulateGoogleLoginNelayan() {
+    demoLoginNelayan();
   }
 
   void demoLoginOperator() {
