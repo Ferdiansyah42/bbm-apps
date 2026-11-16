@@ -10,6 +10,9 @@ void main() {
       ),
     );
 
+    // Tunggu semua Future/Timer async selesai diproses
+    await tester.pumpAndSettle();
+
     // Verify main navigation items
     expect(find.text('Beranda'), findsOneWidget);
     expect(find.text('Antrean'), findsOneWidget);

@@ -3,10 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/constants/app_colors.dart';
 import 'core/constants/app_constants.dart';
+import 'features/auth/presentation/login_screen.dart';
+import 'features/auth/providers/auth_provider.dart';
+import 'features/history/presentation/history_screen.dart';
 import 'features/home_geofence/presentation/home_dashboard_screen.dart';
 import 'features/queue/presentation/queue_screen.dart';
 import 'features/quota_qr/presentation/digital_pass_screen.dart';
-import 'features/history/presentation/history_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,11 +26,13 @@ void main() {
   );
 }
 
-class AntrianSolarApp extends StatelessWidget {
+class AntrianSolarApp extends ConsumerWidget {
   const AntrianSolarApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authNotifierProvider);
+
     return MaterialApp(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
@@ -69,9 +73,11 @@ class AntrianSolarApp extends StatelessWidget {
           showUnselectedLabels: true,
           type: BottomNavigationBarType.fixed,
           elevation: 8,
+          selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+          unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal, fontSize: 11),
         ),
       ),
-      home: const MainNavigationShell(),
+      home: authState.isAuthenticated ? const MainNavigationShell() : const LoginScreen(),
     );
   }
 }
@@ -100,31 +106,36 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         index: _currentIndex,
         children: _screens,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.explore_outlined),
-            activeIcon: Icon(Icons.explore),
-            label: 'Beranda',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.confirmation_number_outlined),
-            activeIcon: Icon(Icons.confirmation_number),
-            label: 'Antrean',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.qr_code_2_outlined),
-            activeIcon: Icon(Icons.qr_code_2),
-            label: 'QR Kuota',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history_outlined),
-            activeIcon: Icon(Icons.history),
-            label: 'Riwayat',
-          ),
-        ],
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: AppColors.border, width: 0.8)),
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (index) => setState(() => _currentIndex = index),
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.explore_outlined),
+              activeIcon: Icon(Icons.explore_rounded),
+              label: 'Beranda',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.confirmation_number_outlined),
+              activeIcon: Icon(Icons.confirmation_number_rounded),
+              label: 'Antrean',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.qr_code_2_outlined),
+              activeIcon: Icon(Icons.qr_code_2_rounded),
+              label: 'QR Kuota',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.history_outlined),
+              activeIcon: Icon(Icons.history_rounded),
+              label: 'Riwayat',
+            ),
+          ],
+        ),
       ),
     );
   }
