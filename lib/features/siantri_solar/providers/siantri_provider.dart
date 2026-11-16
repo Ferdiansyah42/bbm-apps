@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../../settings/models/spbn_settings.dart';
 import '../../settings/providers/settings_provider.dart';
 import '../models/siantri_models.dart';
@@ -358,7 +359,13 @@ final activeTicketProvider =
 /// Provider peran aktif: Mode Nelayan vs Mode Operator SPBN
 class AppRoleNotifier extends Notifier<UserRole> {
   @override
-  UserRole build() => UserRole.fisherman; // Default: Mode Nelayan
+  UserRole build() {
+    final auth = ref.watch(authNotifierProvider);
+    if (auth.currentUser?.isOperator == true) {
+      return UserRole.operator;
+    }
+    return UserRole.fisherman;
+  }
 
   void setRole(UserRole role) {
     state = role;

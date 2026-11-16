@@ -6,6 +6,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/providers/navigation_provider.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/role_switcher_pill.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../../settings/models/spbn_settings.dart';
 import '../../settings/presentation/settings_screen.dart';
 import '../../settings/providers/settings_provider.dart';
@@ -31,6 +32,22 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
   @override
   void initState() {
     super.initState();
+    final auth = ref.read(authNotifierProvider);
+    final user = auth.currentUser;
+    if (user != null && user.isNelayan) {
+      _fishermanNameController.text = user.nama;
+      if (user.nomorRekomendasi != null && user.nomorRekomendasi!.isNotEmpty) {
+        _recommendationController.text = user.nomorRekomendasi!;
+      }
+      if (user.kapasitasMesin != null) {
+        final matched = kBoatEngineTiers
+            .where((t) => t.label == user.kapasitasMesin || user.kapasitasMesin!.contains(t.name))
+            .firstOrNull;
+        if (matched != null) {
+          _selectedEngine = matched;
+        }
+      }
+    }
     _litersController.text = _selectedEngine.maxQuotaLiters.toInt().toString();
   }
 
@@ -272,6 +289,36 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
             tooltip: 'Pengaturan SPBN & Geofencing',
             icon: const Icon(Icons.settings_outlined, color: AppColors.primary),
             onPressed: _openSettings,
+          ),
+          IconButton(
+            tooltip: 'Keluar / Logout',
+            icon: const Icon(Icons.logout_rounded, color: AppColors.danger),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text('Keluar dari Akun?'),
+                  content: const Text('Anda akan dialihkan kembali ke halaman login.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: const Text('Batal'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        ref.read(authNotifierProvider.notifier).logout();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.danger,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text('Keluar'),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../providers/auth_provider.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -11,31 +12,49 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final TextEditingController _identifierController = TextEditingController(text: '3528011204850002');
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
+  final _identifierController = TextEditingController(text: '3528011204850001');
+  final _passwordController = TextEditingController(text: '123456');
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
     _identifierController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final success = await ref
-        .read(authNotifierProvider.notifier)
-        .login(_identifierController.text);
+    final id = _identifierController.text.trim();
+    final pass = _passwordController.text.trim();
 
-    if (!success && mounted) {
-      final error = ref.read(authNotifierProvider).errorMessage ?? 'Login gagal.';
+    final success = await ref.read(authNotifierProvider.notifier).login(
+          identifier: id,
+          password: pass,
+        );
+
+    if (!mounted) return;
+
+    if (!success) {
+      final error = ref.read(authNotifierProvider).errorMessage ?? 'Login gagal. Silakan periksa kembali.';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(error),
           backgroundColor: AppColors.danger,
+          behavior: SnackBarBehavior.floating,
         ),
       );
     }
+  }
+
+  void _demoLoginNelayan() {
+    ref.read(authNotifierProvider.notifier).demoLoginNelayan();
+  }
+
+  void _demoLoginOperator() {
+    ref.read(authNotifierProvider.notifier).demoLoginOperator();
   }
 
   @override
@@ -47,196 +66,277 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
             child: Form(
               key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Logo & Maritime Header
+                  // Logo & Header Maritim
                   Center(
                     child: Container(
-                      width: 90,
-                      height: 90,
+                      width: 86,
+                      height: 86,
                       decoration: BoxDecoration(
-                        color: AppColors.primaryContainer,
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF0F2B48), Color(0xFF1E3A8A)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.15),
+                            color: const Color(0xFF0F2B48).withValues(alpha: 0.25),
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),
                         ],
                       ),
                       child: const Icon(
-                        Icons.sailing_rounded,
-                        size: 52,
-                        color: AppColors.primary,
+                        Icons.directions_boat_rounded,
+                        size: 46,
+                        color: Colors.white,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'SPBN MADURA',
+                  const SizedBox(height: 18),
+                  const Text(
+                    'SiAntri Solar Nelayan',
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 1.2,
-                        ),
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.primary,
+                      letterSpacing: 0.8,
+                    ),
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Sistem Antrean Prioritas & Pengawasan Kuota Solar Nelayan',
+                  const SizedBox(height: 4),
+                  const Text(
+                    'SPBN 54.693.01 Branta Pasian - Pamekasan Madura',
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w500,
-                        ),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                  const SizedBox(height: 32),
+
+                  const SizedBox(height: 28),
 
                   // Login Card
                   Card(
                     elevation: 1,
-                    shadowColor: AppColors.primary.withOpacity(0.08),
+                    shadowColor: AppColors.primary.withValues(alpha: 0.08),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                       side: const BorderSide(color: AppColors.border),
                     ),
                     color: AppColors.surface,
                     child: Padding(
-                      padding: const EdgeInsets.all(24.0),
+                      padding: const EdgeInsets.all(22.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Row(
+                          const Row(
                             children: [
-                              Container(
-                                width: 4,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary,
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
+                              Icon(Icons.lock_person_rounded, color: AppColors.primary, size: 20),
+                              SizedBox(width: 8),
                               Text(
-                                'Masuk Nelayan Terdaftar',
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.textPrimary,
-                                    ),
+                                'Masuk ke Sistem Antrean',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary,
+                                ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 18),
+                          const SizedBox(height: 16),
+
+                          // Input NIK atau No HP
                           TextFormField(
                             controller: _identifierController,
-                            keyboardType: TextInputType.number,
-                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                            decoration: InputDecoration(
-                              labelText: 'NIK / Nomor Handphone',
-                              hintText: '16 digit NIK atau Nomor HP',
-                              prefixIcon: const Icon(Icons.badge_outlined, color: AppColors.primary),
-                              filled: true,
-                              fillColor: AppColors.surfaceVariant,
+                            keyboardType: TextInputType.text,
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                            decoration: const InputDecoration(
+                              labelText: 'NIK / Nomor Handphone / ID',
+                              hintText: 'Contoh: 3528011204850001',
+                              prefixIcon: Icon(Icons.badge_outlined, color: AppColors.primary),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.all(Radius.circular(12)),
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                              ),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                             ),
                             validator: (val) {
                               if (val == null || val.trim().isEmpty) {
                                 return 'NIK atau Nomor HP wajib diisi';
                               }
-                              if (val.trim().length < 10) {
-                                return 'Minimal 10 digit angka';
+                              return null;
+                            },
+                          ),
+
+                          const SizedBox(height: 14),
+
+                          // Input Password
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                            decoration: InputDecoration(
+                              labelText: 'Kata Sandi / Password',
+                              hintText: 'Masukkan kata sandi akun',
+                              prefixIcon: const Icon(Icons.lock_outline_rounded, color: AppColors.primary),
+                              border: const OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(12)),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                                  color: AppColors.textSecondary,
+                                ),
+                                onPressed: () {
+                                  setState(() => _obscurePassword = !_obscurePassword);
+                                },
+                              ),
+                            ),
+                            validator: (val) {
+                              if (val == null || val.trim().isEmpty) {
+                                return 'Password wajib diisi';
                               }
                               return null;
                             },
                           ),
+
                           const SizedBox(height: 20),
-                          FilledButton(
-                            onPressed: authState.isLoading ? null : _handleLogin,
-                            style: FilledButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+
+                          // Tombol Masuk Utama
+                          SizedBox(
+                            height: 48,
+                            child: ElevatedButton.icon(
+                              onPressed: authState.isLoading ? null : _handleLogin,
+                              icon: authState.isLoading
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                    )
+                                  : const Icon(Icons.login_rounded),
+                              label: Text(
+                                authState.isLoading ? 'Memverifikasi...' : 'Masuk',
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                               ),
-                              elevation: 2,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
                             ),
-                            child: authState.isLoading
-                                ? const SizedBox(
-                                    height: 22,
-                                    width: 22,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                    ),
-                                  )
-                                : const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.login_rounded, size: 20),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        'Masuk ke Sistem',
-                                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
                           ),
+
                           const SizedBox(height: 14),
 
-                          // Quick Demo Login Button
-                          OutlinedButton.icon(
-                            onPressed: authState.isLoading
-                                ? null
-                                : () {
-                                    _identifierController.text = '3528011204850002';
-                                    _handleLogin();
-                                  },
-                            icon: const Icon(Icons.verified_user_outlined, size: 18),
-                            label: const Text('Akun Nelayan Demo (Achmad Zaini)'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppColors.secondary,
-                              side: const BorderSide(color: AppColors.secondary),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                          // Link Daftar Akun Nelayan
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Belum punya akun? ',
+                                style: TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
                               ),
-                            ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                                  );
+                                },
+                                style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                                child: const Text(
+                                  'Daftar Akun Nelayan',
+                                  style: TextStyle(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 24),
-                  // Informasi Pelabuhan & Legalitas
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.security_rounded, size: 16, color: AppColors.textMuted),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Terintegrasi Geofencing SPBN Madura & DKP',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textMuted,
-                          fontWeight: FontWeight.w500,
+                  const SizedBox(height: 22),
+
+                  // Akses Cepat Pengujian (Demo Login)
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.bolt_rounded, size: 16, color: Color(0xFFD97706)),
+                            SizedBox(width: 4),
+                            Text(
+                              'Akses Cepat Pengujian (1-Klik Masuk):',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: _demoLoginNelayan,
+                                icon: const Icon(Icons.directions_boat_rounded, size: 16),
+                                label: const Text('Demo Nelayan', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppColors.primary,
+                                  side: const BorderSide(color: AppColors.primary),
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: _demoLoginOperator,
+                                icon: const Icon(Icons.badge_rounded, size: 16),
+                                label: const Text('Demo Operator', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: const Color(0xFFD97706),
+                                  side: const BorderSide(color: Color(0xFFD97706)),
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

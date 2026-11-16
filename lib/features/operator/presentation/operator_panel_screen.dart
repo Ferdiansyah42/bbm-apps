@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/role_switcher_pill.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../../settings/presentation/settings_screen.dart';
 import '../../settings/providers/settings_provider.dart';
 import '../../siantri_solar/models/siantri_models.dart';
@@ -206,6 +207,36 @@ class _OperatorPanelScreenState extends ConsumerState<OperatorPanelScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              );
+            },
+          ),
+          IconButton(
+            tooltip: 'Keluar / Logout',
+            icon: const Icon(Icons.logout_rounded, color: Color(0xFFFCA5A5)),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text('Keluar dari Akun Operator?'),
+                  content: const Text('Anda akan dialihkan kembali ke halaman login.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: const Text('Batal'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        ref.read(authNotifierProvider.notifier).logout();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.danger,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text('Keluar'),
+                    ),
+                  ],
+                ),
               );
             },
           ),
