@@ -1,12 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antrian_solar/core/repositories/mock_spbn_repository.dart';
 import 'package:antrian_solar/main.dart';
 
 void main() {
   testWidgets('AntrianSolarApp basic smoke test', (WidgetTester tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: AntrianSolarApp(),
+      ProviderScope(
+        overrides: [
+          spbnRepositoryProvider.overrideWith((ref) => MockSpbnRepository()),
+        ],
+        child: const AntrianSolarApp(),
       ),
     );
 

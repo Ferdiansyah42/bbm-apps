@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/app_constants.dart';
 import '../models/models.dart';
 import '../utils/haversine_calculator.dart';
+import 'remote_spbn_repository.dart';
 import 'spbn_repository.dart';
 
 /// Exception khusus jika posisi berada di luar radius SPBN (default 100 meter)
@@ -169,6 +170,21 @@ class MockSpbnRepository implements SpbnRepository {
   ];
 
   @override
+  Future<FishermanUser> login(String identifier, {String? fcmToken}) async {
+    await Future.delayed(const Duration(milliseconds: 250));
+    _mockUser = _mockUser.copyWith(
+      nik: identifier,
+      fcmToken: fcmToken ?? _mockUser.fcmToken,
+    );
+    return _mockUser;
+  }
+
+  @override
+  Future<void> logout() async {
+    await Future.delayed(const Duration(milliseconds: 100));
+  }
+
+  @override
   Future<FishermanUser> getFishermanProfile() async {
     await Future.delayed(const Duration(milliseconds: 150));
     return _mockUser;
@@ -307,9 +323,34 @@ class MockSpbnRepository implements SpbnRepository {
 // Riverpod Providers untuk DI dan State Access di Layar UI
 // -------------------------------------------------------------
 
-/// Provider instance singleton MockSpbnRepository
-final spbnRepositoryProvider = Provider<SpbnRepository>((ref) {
+/// Provider instance singleton MockSpbnRepository untuk simulasi offline
+final mockSpbnRepositoryProvider = Provider<MockSpbnRepository>((ref) {
   return MockSpbnRepository();
+});
+
+/// Notifier flag apakah menggunakan Remote Laravel API atau Mock Data Simulasi.
+/// Default bernilai false (menggunakan RemoteSpbnRepository yang terhubung ke Laravel API).
+class UseMockRepositoryNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void setMock(bool value) => state = value;
+  void toggle() => state = !state;
+}
+
+final useMockRepositoryProvider =
+    NotifierProvider<UseMockRepositoryNotifier, bool>(
+  UseMockRepositoryNotifier.new,
+);
+
+/// Provider SpbnRepository utama aplikasi yang digunakan oleh seluruh antarmuka UI.
+/// Secara default mengarah ke RemoteSpbnRepository sesuai permintaan Tahap 6.
+final spbnRepositoryProvider = Provider<SpbnRepository>((ref) {
+  final useMock = ref.watch(useMockRepositoryProvider);
+  if (useMock) {
+    return ref.watch(mockSpbnRepositoryProvider);
+  }
+  return ref.watch(remoteSpbnRepositoryProvider);
 });
 
 /// FutureProvider data profil nelayan
