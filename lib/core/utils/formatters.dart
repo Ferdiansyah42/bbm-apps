@@ -10,6 +10,11 @@ class AppFormatters {
   static final NumberFormat _numberFormat = NumberFormat('#,##0.0', 'id_ID');
   static final NumberFormat _integerFormat = NumberFormat('#,##0', 'id_ID');
 
+  /// Format bilangan bulat / ribuan (contoh: "4.250")
+  static String formatNumber(num value) {
+    return _integerFormat.format(value);
+  }
+
   /// Format volume solar dalam liter (contoh: "45.0 Liter")
   static String formatLiters(double liters) {
     return '${_numberFormat.format(liters)} L';

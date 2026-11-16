@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/formatters.dart';
+import '../../settings/models/spbn_settings.dart';
+import '../../settings/presentation/settings_screen.dart';
+import '../../settings/providers/settings_provider.dart';
 import '../models/siantri_models.dart';
 import '../providers/siantri_provider.dart';
 
@@ -16,67 +19,197 @@ class SiAntriSolarScreen extends ConsumerStatefulWidget {
 
 class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _driverNameController = TextEditingController();
-  final _plateController = TextEditingController();
+  final _fishermanNameController = TextEditingController(text: "Moh. Syafi'i");
+  final _recommendationController =
+      TextEditingController(text: 'REK-DKP-2026-084');
   final _litersController = TextEditingController();
 
-  VehicleTypeConfig _selectedVehicle = kVehicleTypes[2]; // Default: Truk Roda 6 (80 L)
+  BoatEngineTier _selectedEngine = kBoatEngineTiers[1]; // Default: Mesin 15 PK (45 L)
 
   @override
   void initState() {
     super.initState();
-    _litersController.text = _selectedVehicle.maxQuotaLiters.toInt().toString();
+    _litersController.text = _selectedEngine.maxQuotaLiters.toInt().toString();
   }
 
   @override
   void dispose() {
-    _driverNameController.dispose();
-    _plateController.dispose();
+    _fishermanNameController.dispose();
+    _recommendationController.dispose();
     _litersController.dispose();
     super.dispose();
   }
 
-  void _onVehicleChanged(VehicleTypeConfig? newVehicle) {
-    if (newVehicle == null) return;
+  void _onEngineChanged(BoatEngineTier? newEngine) {
+    if (newEngine == null) return;
     setState(() {
-      _selectedVehicle = newVehicle;
+      _selectedEngine = newEngine;
       final currentInput = double.tryParse(_litersController.text) ?? 0;
-      if (currentInput > newVehicle.maxQuotaLiters || currentInput == 0) {
-        _litersController.text = newVehicle.maxQuotaLiters.toInt().toString();
+      if (currentInput > newEngine.maxQuotaLiters || currentInput == 0) {
+        _litersController.text = newEngine.maxQuotaLiters.toInt().toString();
       }
     });
+  }
+
+  void _fillMaxLiters() {
+    setState(() {
+      _litersController.text = _selectedEngine.maxQuotaLiters.toInt().toString();
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Jumlah permintaan diisi kuota maksimal: ${_selectedEngine.maxQuotaLiters.toInt()} Liter',
+        ),
+        duration: const Duration(seconds: 1),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   void _submitRegistration() {
     if (!_formKey.currentState!.validate()) return;
 
-    final driverName = _driverNameController.text.trim();
-    final plate = _plateController.text.trim().toUpperCase();
+    final fishermanName = _fishermanNameController.text.trim();
+    final recommendationNo = _recommendationController.text.trim().toUpperCase();
     final liters = double.parse(_litersController.text.trim());
 
     final ticket = ref.read(siAntriProvider.notifier).registerQueue(
-          driverName: driverName,
-          plateNumber: plate,
-          vehicleType: _selectedVehicle,
+          fishermanName: fishermanName,
+          recommendationNumber: recommendationNo,
+          engineTier: _selectedEngine,
           requestedLiters: liters,
         );
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Nomor Antrean ${ticket.queueNumber} berhasil diterbitkan!'),
+        content: Text(
+          'Tiket antrean ${ticket.queueNumber} atas nama $fishermanName berhasil dibuat!',
+        ),
         backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
       ),
     );
+  }
 
-    // Bersihkan form
-    _driverNameController.clear();
-    _plateController.clear();
+  void _openSettings() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SettingsScreen()),
+    );
+  }
+
+  void _showTicketQrDialog(BuildContext context, {
+    required String queueNumber,
+    required String fishermanName,
+    required String recommendationNumber,
+    required String engineName,
+    required double liters,
+    required String qrPayload,
+  }) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryContainer,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  queueNumber,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.primary,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                fishermanName,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              Text(
+                '$engineName • ${liters.toInt()} Liter',
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.border),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: QrImageView(
+                  data: qrPayload,
+                  version: QrVersions.auto,
+                  size: 190,
+                  backgroundColor: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                recommendationNumber,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'Tunjukkan QR ini ke petugas nozzle SPBN untuk verifikasi kuota',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text('Tutup'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(siAntriProvider);
+    final settings = ref.watch(settingsProvider);
+    final isAllowed = state.canRegister(settings);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -91,29 +224,48 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                 color: AppColors.primaryContainer,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.local_gas_station_rounded, color: AppColors.primary, size: 22),
+              child: const Icon(
+                Icons.directions_boat_rounded,
+                color: AppColors.primary,
+                size: 22,
+              ),
             ),
             const SizedBox(width: 10),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'SiAntri Solar',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.primary,
-                    letterSpacing: 0.5,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'SiAntri Solar Nelayan',
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.primary,
+                      letterSpacing: 0.4,
+                    ),
                   ),
-                ),
-                Text(
-                  'SPBU 54.693.01 Pamekasan - Madura',
-                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.normal),
-                ),
-              ],
+                  Text(
+                    settings.spbnName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Pengaturan SPBN & Geofencing',
+            icon: const Icon(Icons.settings_outlined, color: AppColors.primary),
+            onPressed: _openSettings,
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -121,37 +273,39 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // ==========================================
-            // 1. HEADER & STATUS BAR
+            // 1. HEADER & STATUS BAR SPBN (STOK TANGKI)
             // ==========================================
-            _buildHeaderStatusBar(context, state),
+            _buildHeaderStatusBar(context, state, settings),
 
-            const SizedBox(height: 16),
-
-            // SIMULASI GEOFENCE SWITCHER (DEMO CONTROL)
-            _buildGeofenceSimBar(context, state),
-
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
             // ==========================================
-            // 3. KARTU TIKET ANTREAN DIGITAL (Jika sudah mendaftar)
+            // 2. KARTU STATUS GEOFENCING (MENGIKUTI SAKLAR)
+            // ==========================================
+            _buildGeofencingStatusCard(context, state, settings),
+
+            const SizedBox(height: 14),
+
+            // ==========================================
+            // 3. KARTU TIKET ANTREAN DIGITAL (BOARDING PASS)
             // ==========================================
             if (state.currentTicket != null) ...[
-              _buildDigitalTicketCard(context, state.currentTicket!),
-              const SizedBox(height: 16),
+              _buildDigitalTicketBoardingPass(context, state.currentTicket!, settings),
+              const SizedBox(height: 14),
             ],
 
             // ==========================================
-            // 2. MODUL AMBIL NOMOR ANTREAN (FORM INPUT)
+            // 4. MODUL FORM AMBIL NOMOR ANTREAN NELAYAN
             // ==========================================
             if (state.currentTicket == null) ...[
-              _buildQueueRegistrationForm(context, state),
-              const SizedBox(height: 16),
+              _buildFishermanRegistrationForm(context, state, settings, isAllowed),
+              const SizedBox(height: 14),
             ],
 
             // ==========================================
-            // 4. MODUL DAFTAR ANTREAN LIVE (FIFO)
+            // 5. DAFTAR ANTREAN LIVE (FIFO)
             // ==========================================
-            _buildLiveQueueModule(context, state),
+            _buildLiveQueueSection(context, state),
 
             const SizedBox(height: 24),
           ],
@@ -160,77 +314,527 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
     );
   }
 
-  // -------------------------------------------------------------
-  // WIDGET 1: HEADER & STATUS BAR
-  // -------------------------------------------------------------
-  Widget _buildHeaderStatusBar(BuildContext context, SiAntriState state) {
-    return Card(
-      elevation: 1,
-      shadowColor: AppColors.primary.withOpacity(0.08),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: AppColors.border),
+  // ==========================================
+  // WIDGET 1: HEADER & STATUS BAR SPBN
+  // ==========================================
+  Widget _buildHeaderStatusBar(
+    BuildContext context,
+    SiAntriState state,
+    SpbnSettings settings,
+  ) {
+    final percentage = (state.tankPercentage * 100).toStringAsFixed(1);
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF0F2B48), Color(0xFF1E4976)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F2B48).withValues(alpha: 0.25),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      color: AppColors.surface,
-      child: Padding(
-        padding: const EdgeInsets.all(18.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Nama SPBN & Badge Ketersediaan
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryContainer,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(Icons.ev_station_rounded, color: AppColors.primary, size: 24),
+                    const Icon(
+                      Icons.anchor_rounded,
+                      color: Color(0xFF93C5FD),
+                      size: 18,
                     ),
-                    const SizedBox(width: 12),
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Ketersediaan Solar',
-                          style: TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        settings.spbnName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
                         ),
-                        Text(
-                          'Solar Subsidi JBT',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                        ),
-                      ],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
-                // Badge Ketersediaan
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.2),
+                  border: Border.all(color: const Color(0xFF34D399)),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.check_circle_rounded, color: Color(0xFF34D399), size: 13),
+                    SizedBox(width: 4),
+                    Text(
+                      'Solar Tersedia',
+                      style: TextStyle(
+                        color: Color(0xFF34D399),
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 14),
+
+          // Sisa Stok Tangki & Progress Bar
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Sisa Stok Tangki SPBN',
+                    style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                  ),
+                  const SizedBox(height: 2),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '${AppFormatters.formatNumber(state.tankStockLiters)} L ',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        TextSpan(
+                          text: '/ ${AppFormatters.formatNumber(state.tankCapacityLiters)} L',
+                          style: const TextStyle(
+                            color: Color(0xFF94A3B8),
+                            fontSize: 13,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '$percentage%',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 8),
+
+          // Progress Bar Sisa Stok Tangki
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: state.tankPercentage,
+              minHeight: 8,
+              backgroundColor: Colors.white.withValues(alpha: 0.15),
+              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF38BDF8)),
+            ),
+          ),
+
+          const SizedBox(height: 14),
+
+          // Ringkasan Info Bawah: Antrean Aktif & Estimasi
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.groups_rounded, color: Color(0xFF93C5FD), size: 18),
+                      const SizedBox(width: 8),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Antrean Aktif',
+                              style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 10)),
+                          Text('${state.activeQueueCount} Kapal',
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.schedule_rounded, color: Color(0xFFFDE047), size: 18),
+                      SizedBox(width: 8),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Est. Layanan',
+                              style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 10)),
+                          Text('~8 Menit / Kapal',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==========================================
+  // WIDGET 2: KARTU STATUS GEOFENCING (MENGIKUTI SAKLAR)
+  // ==========================================
+  Widget _buildGeofencingStatusCard(
+    BuildContext context,
+    SiAntriState state,
+    SpbnSettings settings,
+  ) {
+    if (!settings.isGeofenceEnabled) {
+      // ----------------------------------------------------
+      // MODE BEBAS UJI (GEOFENCING DINONAKTIFKAN / DEFAULT)
+      // ----------------------------------------------------
+      return Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFEFF6FF), // Soft Blue
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFBFDBFE), width: 1.2),
+        ),
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF3B82F6),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.verified_outlined, color: Colors.white, size: 18),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFDBEAFE),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Text(
+                          'Mode Bebas Uji (Geofencing Dinonaktifkan)',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1D4ED8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      const Text(
+                        'Pendaftaran antrean aktif dari mana saja tanpa pembatasan lokasi GPS.',
+                        style: TextStyle(fontSize: 11, color: Color(0xFF475569)),
+                      ),
+                    ],
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: _openSettings,
+                  icon: const Icon(Icons.settings, size: 14),
+                  label: const Text('Atur', style: TextStyle(fontSize: 12)),
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFF1D4ED8),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
+    // ----------------------------------------------------
+    // MODE GEOFENCING AKTIF (VALIDASI GPS KETAT)
+    // ----------------------------------------------------
+    final bool isInside = state.isInsideGeofence;
+    final bool isMock = state.isMockLocation;
+
+    Color cardBg;
+    Color borderColor;
+    Color iconColor;
+    IconData statusIcon;
+    String badgeTitle;
+    String subtitleText;
+
+    if (isMock) {
+      cardBg = const Color(0xFFFEF2F2);
+      borderColor = const Color(0xFFFECACA);
+      iconColor = AppColors.danger;
+      statusIcon = Icons.warning_amber_rounded;
+      badgeTitle = 'TERDETEKSI LOKASI PALSU (FAKE GPS)';
+      subtitleText = 'Akses antrean diblokir demi keamanan kuota subsidi nelayan.';
+    } else if (isInside) {
+      cardBg = const Color(0xFFF0FDF4);
+      borderColor = const Color(0xFFBBF7D0);
+      iconColor = AppColors.success;
+      statusIcon = Icons.check_circle_rounded;
+      badgeTitle = 'Di Dalam Radius SPBN (${state.currentDistanceMeters.toStringAsFixed(0)} m)';
+      subtitleText = 'Lokasi GPS valid di dermaga SPBN (Maks ${settings.radiusMeters.toStringAsFixed(0)} m).';
+    } else {
+      cardBg = const Color(0xFFFFF7ED);
+      borderColor = const Color(0xFFFED7AA);
+      iconColor = AppColors.warning;
+      statusIcon = Icons.location_off_rounded;
+      badgeTitle = 'Di Luar Radius SPBN (${state.currentDistanceMeters.toStringAsFixed(0)} m)';
+      subtitleText = 'Tombol pendaftaran terkunci. Dekati dermaga SPBN (Radius ${settings.radiusMeters.toStringAsFixed(0)} m).';
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: borderColor, width: 1.2),
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(statusIcon, color: iconColor, size: 24),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      badgeTitle,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: iconColor,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitleText,
+                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.settings, size: 18, color: AppColors.textSecondary),
+                tooltip: 'Pengaturan Geofence',
+                onPressed: _openSettings,
+              ),
+            ],
+          ),
+          const Divider(height: 16),
+          // Baris Simulasi Cepat Geofence (Memudahkan Pengujian Tanpa Harus ke Dermaga)
+          Row(
+            children: [
+              const Text(
+                'Simulasi:',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textMuted),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Wrap(
+                  spacing: 6,
+                  children: [
+                    InkWell(
+                      onTap: () => ref.read(siAntriProvider.notifier).setGeofenceStatus(
+                            isInside: true,
+                            distance: 35.0,
+                          ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: isInside && !isMock ? AppColors.successContainer : Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: const Text('Di SPBN (35m)', style: TextStyle(fontSize: 10)),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => ref.read(siAntriProvider.notifier).setGeofenceStatus(
+                            isInside: false,
+                            distance: 380.0,
+                          ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: !isInside && !isMock ? const Color(0xFFFED7AA) : Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: const Text('Di Rumah (380m)', style: TextStyle(fontSize: 10)),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => ref.read(siAntriProvider.notifier).setGeofenceStatus(
+                            isInside: true,
+                            distance: 20.0,
+                            isMock: true,
+                          ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: isMock ? const Color(0xFFFECACA) : Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: const Text('Fake GPS', style: TextStyle(fontSize: 10)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==========================================
+  // WIDGET 3: KARTU TIKET ANTREAN DIGITAL (BOARDING PASS)
+  // ==========================================
+  Widget _buildDigitalTicketBoardingPass(
+    BuildContext context,
+    SiAntriTicket ticket,
+    SpbnSettings settings,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        children: [
+          // Header Boarding Pass
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF0F2B48), Color(0xFF1E3A8A)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(19),
+                topRight: Radius.circular(19),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'BOARDING PASS ANTREAN SOLAR',
+                      style: TextStyle(
+                        color: Color(0xFF93C5FD),
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      ticket.queueNumber,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: state.isAvailable ? AppColors.successContainer : AppColors.dangerContainer,
+                    color: const Color(0xFFF59E0B),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: state.isAvailable ? AppColors.success.withOpacity(0.4) : AppColors.danger.withOpacity(0.4),
-                    ),
                   ),
-                  child: Row(
+                  child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: state.isAvailable ? AppColors.success : AppColors.danger,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
+                      Icon(Icons.hourglass_top_rounded, color: Colors.white, size: 14),
+                      SizedBox(width: 4),
                       Text(
-                        state.isAvailable ? 'Tersedia' : 'Habis',
+                        'Menunggu',
                         style: TextStyle(
-                          color: state.isAvailable ? AppColors.success : AppColors.danger,
+                          color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -240,126 +844,168 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                 ),
               ],
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 14.0),
-              child: Divider(height: 1, color: AppColors.divider),
-            ),
-            // Dua Kolom Statistik: Sisa Stok & Antrean Aktif
-            Row(
+          ),
+
+          // Garis Putus-Putus Perforasi Khas Tiket
+          _buildTicketDottedDivider(),
+
+          // Body Rincian Tiket Nelayan
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            child: Column(
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Sisa Stok Tangki SPBU', style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(Icons.water_drop_rounded, size: 18, color: AppColors.accentSolar),
-                          const SizedBox(width: 4),
-                          Text(
-                            AppFormatters.formatLiters(state.tankStockLiters),
-                            style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w900,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ],
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: _buildTicketDetailItem(
+                        label: 'NAMA NELAYAN',
+                        value: ticket.fishermanName,
+                        icon: Icons.person_rounded,
                       ),
-                    ],
-                  ),
+                    ),
+                    Expanded(
+                      child: _buildTicketDetailItem(
+                        label: 'SURAT REKOMENDASI DKP',
+                        value: ticket.recommendationNumber,
+                        icon: Icons.assignment_rounded,
+                      ),
+                    ),
+                  ],
                 ),
-                Container(width: 1, height: 38, color: AppColors.border),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Jumlah Antrean Aktif', style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(Icons.directions_car_rounded, size: 18, color: AppColors.secondary),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${state.activeQueueCount} Kendaraan',
-                            style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w900,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ],
+                const SizedBox(height: 12),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: _buildTicketDetailItem(
+                        label: 'KAPASITAS MESIN',
+                        value: ticket.engineTier.name,
+                        icon: Icons.directions_boat_rounded,
                       ),
-                    ],
-                  ),
+                    ),
+                    Expanded(
+                      child: _buildTicketDetailItem(
+                        label: 'KUOTA SOLAR DIMINTA',
+                        value: '${ticket.requestedLiters.toInt()} Liter',
+                        icon: Icons.local_gas_station_rounded,
+                        isHighlight: true,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: _buildTicketDetailItem(
+                        label: 'ESTIMASI PENGISIAN',
+                        value: AppFormatters.formatTime(ticket.estimatedTime),
+                        icon: Icons.access_time_filled_rounded,
+                      ),
+                    ),
+                    Expanded(
+                      child: _buildTicketDetailItem(
+                        label: 'LOKASI SPBN',
+                        value: settings.spbnName.split('-').first.trim(),
+                        icon: Icons.storefront_rounded,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Bar Simulasi Geofence Demo
-  Widget _buildGeofenceSimBar(BuildContext context, SiAntriState state) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: state.isInsideGeofence ? AppColors.successContainer.withOpacity(0.5) : AppColors.dangerContainer.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: state.isInsideGeofence ? AppColors.success.withOpacity(0.4) : AppColors.danger.withOpacity(0.4),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            state.isInsideGeofence ? Icons.near_me_rounded : Icons.location_off_rounded,
-            color: state.isInsideGeofence ? AppColors.success : AppColors.danger,
-            size: 20,
           ),
-          const SizedBox(width: 10),
-          Expanded(
+
+          // Garis Putus-Putus Perforasi Sebelum QR
+          _buildTicketDottedDivider(),
+
+          // Bagian QR Code & Aksi
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  state.isInsideGeofence
-                      ? 'Geofence Valid: Anda berada di area SPBU (${state.currentDistanceMeters.toStringAsFixed(0)} m)'
-                      : 'Di Luar Radius SPBU (${state.currentDistanceMeters.toStringAsFixed(0)} m > 100 m)',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: state.isInsideGeofence ? AppColors.success : AppColors.danger,
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: QrImageView(
+                    data: ticket.qrData,
+                    version: QrVersions.auto,
+                    size: 160,
+                    backgroundColor: Colors.white,
                   ),
                 ),
+                const SizedBox(height: 8),
                 Text(
-                  state.isInsideGeofence ? 'Pendaftaran antrean dibuka' : 'Pendaftaran antrean terkunci otomatis',
+                  ticket.qrData,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontFamily: 'monospace',
+                    color: AppColors.textMuted,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Tunjukkan QR ini ke petugas nozzle SPBN untuk scan barcode & pencairan kuota.',
+                  textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
                 ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _showTicketQrDialog(
+                          context,
+                          queueNumber: ticket.queueNumber,
+                          fishermanName: ticket.fishermanName,
+                          recommendationNumber: ticket.recommendationNumber,
+                          engineName: ticket.engineTier.name,
+                          liters: ticket.requestedLiters,
+                          qrPayload: ticket.qrData,
+                        ),
+                        icon: const Icon(Icons.fullscreen_rounded, size: 18),
+                        label: const Text('Perbesar QR'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          ref.read(siAntriProvider.notifier).cancelTicket();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Tiket antrean berhasil dibatalkan'),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.cancel_outlined, size: 18),
+                        label: const Text('Batal Antre'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.danger,
+                          side: const BorderSide(color: AppColors.danger),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
-            ),
-          ),
-          // Tombol Simulasi Cepat
-          TextButton(
-            onPressed: () {
-              final newStatus = !state.isInsideGeofence;
-              ref.read(siAntriProvider.notifier).setGeofenceStatus(newStatus, newStatus ? 25.0 : 350.0);
-            },
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              minimumSize: const Size(50, 30),
-            ),
-            child: Text(
-              state.isInsideGeofence ? 'Simulasi Luar' : 'Simulasi Masuk',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                color: state.isInsideGeofence ? AppColors.danger : AppColors.primary,
-              ),
             ),
           ),
         ],
@@ -367,205 +1013,331 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
     );
   }
 
-  // -------------------------------------------------------------
-  // WIDGET 2: FORM PENGAMBILAN ANTREAN
-  // -------------------------------------------------------------
-  Widget _buildQueueRegistrationForm(BuildContext context, SiAntriState state) {
+  Widget _buildTicketDottedDivider() {
+    return Row(
+      children: [
+        // Lekukan kiri
+        Container(
+          width: 12,
+          height: 24,
+          decoration: const BoxDecoration(
+            color: AppColors.background,
+            borderRadius: BorderRadius.only(
+              topRight: Radius.circular(12),
+              bottomRight: Radius.circular(12),
+            ),
+          ),
+        ),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              const dashWidth = 5.0;
+              const dashSpace = 4.0;
+              final dashCount = (constraints.constrainWidth() / (dashWidth + dashSpace)).floor();
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: List.generate(dashCount, (_) {
+                  return const SizedBox(
+                    width: dashWidth,
+                    height: 1.5,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(color: Color(0xFFCBD5E1)),
+                    ),
+                  );
+                }),
+              );
+            },
+          ),
+        ),
+        // Lekukan kanan
+        Container(
+          width: 12,
+          height: 24,
+          decoration: const BoxDecoration(
+            color: AppColors.background,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(12),
+              bottomLeft: Radius.circular(12),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTicketDetailItem({
+    required String label,
+    required String value,
+    required IconData icon,
+    bool isHighlight = false,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 13, color: AppColors.textMuted),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textMuted,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 3),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: isHighlight ? 15 : 13,
+            fontWeight: FontWeight.bold,
+            color: isHighlight ? AppColors.primary : AppColors.textPrimary,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+
+  // ==========================================
+  // WIDGET 4: FORM AMBIL NOMOR ANTREAN NELAYAN
+  // ==========================================
+  Widget _buildFishermanRegistrationForm(
+    BuildContext context,
+    SiAntriState state,
+    SpbnSettings settings,
+    bool isAllowed,
+  ) {
     return Card(
-      elevation: 1,
-      shadowColor: AppColors.primary.withOpacity(0.06),
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         side: const BorderSide(color: AppColors.border),
       ),
-      color: AppColors.surface,
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Header Form
               Row(
                 children: [
                   Container(
-                    width: 4,
-                    height: 20,
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(2),
+                      color: AppColors.primaryContainer,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.assignment_add, color: AppColors.primary, size: 20),
+                  ),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Ambil Nomor Antrean Nelayan',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        Text(
+                          'Input identitas kapal & rekomendasi DKP',
+                          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              const Divider(height: 24),
+
+              // 1. Input Nama Lengkap Nelayan
+              TextFormField(
+                controller: _fishermanNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Nama Lengkap Nelayan',
+                  hintText: "Contoh: Moh. Syafi'i",
+                  prefixIcon: Icon(Icons.person_outline_rounded),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                ),
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return 'Nama nelayan wajib diisi';
+                  }
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 12),
+
+              // 2. Input Nomor Surat Rekomendasi / Barcode
+              TextFormField(
+                controller: _recommendationController,
+                textCapitalization: TextCapitalization.characters,
+                decoration: InputDecoration(
+                  labelText: 'Nomor Surat Rekomendasi / Barcode',
+                  hintText: 'Contoh: REK-DKP-2026-084',
+                  prefixIcon: const Icon(Icons.qr_code_rounded),
+                  suffixIcon: IconButton(
+                    tooltip: 'Gunakan nomor rekomendasi default DKP',
+                    icon: const Icon(Icons.auto_fix_high_rounded, color: AppColors.primary),
+                    onPressed: () {
+                      _recommendationController.text = 'REK-DKP-2026-084';
+                    },
+                  ),
+                  border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                ),
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return 'Nomor surat rekomendasi wajib diisi';
+                  }
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 12),
+
+              // 3. Dropdown Kapasitas Mesin Kapal & Kuota Maksimal
+              DropdownButtonFormField<BoatEngineTier>(
+                value: _selectedEngine,
+                decoration: const InputDecoration(
+                  labelText: 'Kapasitas Mesin Kapal & Kuota',
+                  prefixIcon: Icon(Icons.directions_boat_outlined),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                ),
+                items: kBoatEngineTiers.map((tier) {
+                  return DropdownMenuItem<BoatEngineTier>(
+                    value: tier,
+                    child: Text(
+                      tier.label,
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    ),
+                  );
+                }).toList(),
+                onChanged: _onEngineChanged,
+              ),
+
+              const SizedBox(height: 12),
+
+              // 4. Input Jumlah Permintaan (Liter) & Tombol Pintas "Isi Maksimal"
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _litersController,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      decoration: InputDecoration(
+                        labelText: 'Permintaan Solar (Liter)',
+                        hintText: 'Contoh: ${_selectedEngine.maxQuotaLiters.toInt()}',
+                        suffixText: 'Liter',
+                        prefixIcon: const Icon(Icons.local_gas_station_rounded),
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(12)),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      ),
+                      validator: (val) {
+                        final liters = double.tryParse(val ?? '');
+                        if (liters == null || liters <= 0) {
+                          return 'Jumlah liter harus lebih dari 0';
+                        }
+                        if (liters > _selectedEngine.maxQuotaLiters) {
+                          return 'Maksimal ${_selectedEngine.maxQuotaLiters.toInt()} L untuk ${_selectedEngine.name}';
+                        }
+                        return null;
+                      },
                     ),
                   ),
                   const SizedBox(width: 8),
-                  const Text(
-                    'Ambil Nomor Antrean Kendaraan',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                'Lengkapi identitas kendaraan untuk verifikasi kuota solar subsidi',
-                style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
-              ),
-              const SizedBox(height: 18),
-
-              // 1. Nama Lengkap Sopir
-              TextFormField(
-                controller: _driverNameController,
-                textCapitalization: TextCapitalization.words,
-                decoration: InputDecoration(
-                  labelText: 'Nama Lengkap Sopir',
-                  hintText: 'Contoh: H. Abdul Wahid',
-                  prefixIcon: const Icon(Icons.person_outline_rounded, color: AppColors.primary),
-                  filled: true,
-                  fillColor: AppColors.surfaceVariant,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                  ),
-                ),
-                validator: (val) {
-                  if (val == null || val.trim().isEmpty) return 'Nama sopir wajib diisi';
-                  if (val.trim().length < 3) return 'Nama minimal 3 karakter';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 14),
-
-              // 2. Nomor Polisi / Plat Nomor (Seri Madura 'M')
-              TextFormField(
-                controller: _plateController,
-                textCapitalization: TextCapitalization.characters,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
-                  LengthLimitingTextInputFormatter(11),
-                ],
-                decoration: InputDecoration(
-                  labelText: 'Nomor Polisi (Seri Madura M)',
-                  hintText: 'Contoh: M 4582 BG',
-                  helperText: 'Wajib berpelat wilayah Madura (Awalan M)',
-                  helperStyle: const TextStyle(fontSize: 11, color: AppColors.secondary),
-                  prefixIcon: const Icon(Icons.badge_outlined, color: AppColors.primary),
-                  filled: true,
-                  fillColor: AppColors.surfaceVariant,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                  ),
-                ),
-                validator: (val) {
-                  if (val == null || val.trim().isEmpty) return 'Plat nomor wajib diisi';
-                  final trimmed = val.trim().toUpperCase();
-                  if (!trimmed.startsWith('M')) {
-                    return 'Plat nomor harus berawalan huruf M (Wilayah Madura)';
-                  }
-                  final plateRegex = RegExp(r'^M\s?[0-9]{1,4}\s?[A-Z]{1,3}$');
-                  if (!plateRegex.hasMatch(trimmed)) {
-                    return 'Format plat tidak valid (contoh: M 1234 AB)';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 14),
-
-              // 3. Dropdown Jenis Kendaraan & Kuota Maksimal
-              InputDecorator(
-                decoration: InputDecoration(
-                  labelText: 'Jenis Kendaraan & Kuota Maksimal',
-                  prefixIcon: const Icon(Icons.directions_bus_rounded, color: AppColors.primary),
-                  filled: true,
-                  fillColor: AppColors.surfaceVariant,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<VehicleTypeConfig>(
-                    value: _selectedVehicle,
-                    isExpanded: true,
-                    icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.primary),
-                    items: kVehicleTypes.map((v) {
-                      return DropdownMenuItem<VehicleTypeConfig>(
-                        value: v,
-                        child: Text(
-                          '${v.name} (Maks ${v.maxQuotaLiters.toInt()} L)',
-                          style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                  // Tombol Pintas "Isi Maksimal"
+                  SizedBox(
+                    height: 48,
+                    child: ElevatedButton.icon(
+                      onPressed: _fillMaxLiters,
+                      icon: const Icon(Icons.flash_on_rounded, size: 16),
+                      label: const Text(
+                        'Isi Maksimal',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFE0F2FE),
+                        foregroundColor: const Color(0xFF0369A1),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: const BorderSide(color: Color(0xFFBAE6FD)),
                         ),
-                      );
-                    }).toList(),
-                    onChanged: _onVehicleChanged,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 14),
-
-              // 4. Input Jumlah Permintaan (Liter)
-              TextFormField(
-                controller: _litersController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],
-                decoration: InputDecoration(
-                  labelText: 'Jumlah Permintaan Solar (Liter)',
-                  hintText: 'Maks ${_selectedVehicle.maxQuotaLiters.toInt()} Liter',
-                  suffixText: 'Liter',
-                  suffixStyle: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
-                  prefixIcon: const Icon(Icons.local_gas_station_outlined, color: AppColors.primary),
-                  filled: true,
-                  fillColor: AppColors.surfaceVariant,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                  ),
-                ),
-                validator: (val) {
-                  if (val == null || val.trim().isEmpty) return 'Jumlah liter wajib diisi';
-                  final amount = double.tryParse(val.trim());
-                  if (amount == null || amount <= 0) return 'Masukkan jumlah liter yang valid (> 0)';
-                  if (amount > _selectedVehicle.maxQuotaLiters) {
-                    return 'Melebihi kuota maksimal ${_selectedVehicle.name} (${_selectedVehicle.maxQuotaLiters.toInt()} L)';
-                  }
-                  if (amount > state.tankStockLiters) {
-                    return 'Melebihi sisa stok solar SPBU (${state.tankStockLiters.toInt()} L)';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-
-              // 5. Tombol Ambil Antrean (Terkunci jika di luar radius geofence)
-              FilledButton(
-                onPressed: state.isInsideGeofence ? _submitRegistration : null,
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  disabledBackgroundColor: AppColors.border,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                  elevation: state.isInsideGeofence ? 2 : 0,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      state.isInsideGeofence ? Icons.qr_code_rounded : Icons.lock_outline_rounded,
-                      size: 20,
+                      ),
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      state.isInsideGeofence ? 'Daftar & Dapatkan Tiket QR' : 'Tombol Terkunci (Di Luar SPBU)',
-                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              // 5. Tombol Hijau Utama "Daftar & Dapatkan Tiket QR"
+              SizedBox(
+                height: 50,
+                child: ElevatedButton.icon(
+                  onPressed: isAllowed ? _submitRegistration : null,
+                  icon: const Icon(Icons.qr_code_2_rounded, size: 22),
+                  label: Text(
+                    isAllowed
+                        ? 'Daftar & Dapatkan Tiket QR'
+                        : 'Tombol Terkunci (Di Luar Radius SPBN)',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0D9488), // Maritime Emerald Teal
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: Colors.grey.shade300,
+                    disabledForegroundColor: Colors.grey.shade600,
+                    elevation: isAllowed ? 2 : 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Penjelasan tombol saat terkunci
+              if (!isAllowed) ...[
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.info_outline_rounded, size: 14, color: AppColors.danger),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        settings.isGeofenceEnabled
+                            ? 'Untuk membuka tombol ini saat di rumah, buka Pengaturan lalu matikan saklar Geofencing (Mode Bebas Uji).'
+                            : 'Stok solar SPBN habis atau data tidak valid.',
+                        style: const TextStyle(fontSize: 11, color: AppColors.danger),
+                      ),
                     ),
                   ],
-                ),
-              ),
-
-              if (!state.isInsideGeofence) ...[
-                const SizedBox(height: 10),
-                const Text(
-                  'Tombol pendaftaran otomatis terkunci karena GPS mendeteksi kendaraan Anda belum berada di dalam radius 100m SPBU.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 11, color: AppColors.danger, fontWeight: FontWeight.w500),
                 ),
               ],
             ],
@@ -575,330 +1347,161 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
     );
   }
 
-  // -------------------------------------------------------------
-  // WIDGET 3: KARTU TIKET ANTREAN DIGITAL (QR CODE)
-  // -------------------------------------------------------------
-  Widget _buildDigitalTicketCard(BuildContext context, SiAntriTicket ticket) {
-    return Card(
-      elevation: 2,
-      shadowColor: AppColors.primary.withOpacity(0.12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(22),
-        side: const BorderSide(color: AppColors.primary, width: 1.5),
+  // ==========================================
+  // WIDGET 5: DAFTAR ANTREAN LIVE (FIFO)
+  // ==========================================
+  Widget _buildLiveQueueSection(BuildContext context, SiAntriState state) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.border),
       ),
-      color: AppColors.surface,
-      child: Padding(
-        padding: const EdgeInsets.all(22.0),
-        child: Column(
-          children: [
-            // Status Badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppColors.successContainer,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Row(
                 children: [
-                  Icon(Icons.check_circle_rounded, size: 16, color: AppColors.success),
-                  SizedBox(width: 6),
+                  Icon(Icons.format_list_numbered_rounded, color: AppColors.primary, size: 20),
+                  SizedBox(width: 8),
                   Text(
-                    'TIKET ANTREAN AKTIF',
-                    style: TextStyle(color: AppColors.success, fontWeight: FontWeight.bold, fontSize: 12),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 14),
-            const Text(
-              'NOMOR ANTREAN ANDA',
-              style: TextStyle(fontSize: 12, letterSpacing: 1.2, color: AppColors.textSecondary, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              ticket.queueNumber,
-              style: const TextStyle(
-                fontSize: 48,
-                fontWeight: FontWeight.w900,
-                color: AppColors.primary,
-                letterSpacing: 2,
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // QR CODE (qr_flutter)
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: AppColors.border, width: 1.5),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 3)),
-                ],
-              ),
-              child: Column(
-                children: [
-                  QrImageView(
-                    data: ticket.qrData,
-                    version: QrVersions.auto,
-                    size: 190.0,
-                    eyeStyle: const QrEyeStyle(
-                      eyeShape: QrEyeShape.square,
-                      color: AppColors.primaryDark,
-                    ),
-                    dataModuleStyle: const QrDataModuleStyle(
-                      dataModuleShape: QrDataModuleShape.square,
-                      color: Color(0xFF0F172A),
+                    'Daftar Antrean Live (FIFO)',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Scan di Dispenser SPBU',
-                    style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${state.liveQueues.length} Kapal',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
                   ),
-                ],
+                ),
               ),
-            ),
-            const SizedBox(height: 18),
-
-            // Rincian Tiket: Plat Nomor, Kuota, Estimasi
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceVariant,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Column(
-                children: [
-                  _buildTicketRow('Plat Nomor', ticket.plateNumber, isBold: true),
-                  const SizedBox(height: 8),
-                  _buildTicketRow('Sopir Terdaftar', ticket.driverName),
-                  const SizedBox(height: 8),
-                  _buildTicketRow('Jenis Kendaraan', ticket.vehicleType.name),
-                  const SizedBox(height: 8),
-                  _buildTicketRow('Permintaan Solar', '${ticket.requestedLiters.toInt()} Liter', highlight: true),
-                  const SizedBox(height: 8),
-                  _buildTicketRow('Estimasi Pelayanan', '${AppFormatters.formatTime(ticket.estimatedTime)} WIB'),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 16),
-            OutlinedButton.icon(
-              onPressed: () {
-                ref.read(siAntriProvider.notifier).cancelTicket();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Nomor antrean telah dibatalkan.')),
-                );
-              },
-              icon: const Icon(Icons.cancel_outlined, size: 18),
-              label: const Text('Batalkan / Ambil Ulang'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.danger,
-                side: const BorderSide(color: AppColors.danger),
-                minimumSize: const Size.fromHeight(44),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTicketRow(String label, String value, {bool isBold = false, bool highlight = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary)),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: highlight || isBold ? FontWeight.bold : FontWeight.w600,
-            color: highlight ? AppColors.primary : AppColors.textPrimary,
+            ],
           ),
-        ),
-      ],
-    );
-  }
+          const SizedBox(height: 12),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: state.liveQueues.length,
+            separatorBuilder: (_, __) => const Divider(height: 16),
+            itemBuilder: (context, index) {
+              final queue = state.liveQueues[index];
+              final isServing = queue.isServing;
 
-  // -------------------------------------------------------------
-  // WIDGET 4: MODUL DAFTAR ANTREAN LIVE (FIFO)
-  // -------------------------------------------------------------
-  Widget _buildLiveQueueModule(BuildContext context, SiAntriState state) {
-    return Card(
-      elevation: 1,
-      shadowColor: AppColors.primary.withOpacity(0.06),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: AppColors.border),
-      ),
-      color: AppColors.surface,
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryContainer,
-                        borderRadius: BorderRadius.circular(10),
+              return Row(
+                children: [
+                  // Badge Kode Antrean
+                  Container(
+                    width: 72,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      color: isServing
+                          ? const Color(0xFF10B981).withValues(alpha: 0.15)
+                          : const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isServing ? const Color(0xFF34D399) : const Color(0xFFCBD5E1),
                       ),
-                      child: const Icon(Icons.queue_rounded, color: AppColors.primary, size: 20),
                     ),
-                    const SizedBox(width: 10),
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Column(
                       children: [
                         Text(
-                          'Daftar Antrean Live (FIFO)',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                          queue.queueNumber,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                            color: isServing ? const Color(0xFF047857) : AppColors.textPrimary,
+                          ),
                         ),
                         Text(
-                          'Urutan pelayanan dispenser solar SPBU',
-                          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                          isServing ? 'Dilayani' : 'Menunggu',
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            color: isServing ? const Color(0xFF047857) : AppColors.textMuted,
+                          ),
                         ),
                       ],
                     ),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.infoContainer,
-                    borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Text(
-                    '${state.liveQueues.length} Antre',
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.info),
+                  const SizedBox(width: 12),
+                  // Info Nelayan & Kapal
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          queue.fishermanName,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${queue.engineName} • ${queue.liters.toInt()} L',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        Text(
+                          queue.recommendationNumber,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppColors.textMuted,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // List Kendaraan FIFO
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: state.liveQueues.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 10),
-              itemBuilder: (context, index) {
-                final item = state.liveQueues[index];
-                return _buildLiveQueueItemCard(item);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLiveQueueItemCard(LiveQueueItem item) {
-    final bool isServing = item.isServing;
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: isServing ? AppColors.successContainer.withOpacity(0.35) : AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isServing ? AppColors.success.withOpacity(0.6) : AppColors.border,
-          width: isServing ? 1.5 : 1.0,
-        ),
-      ),
-      child: Row(
-        children: [
-          // Nomor Antrean Box
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            decoration: BoxDecoration(
-              color: isServing ? AppColors.success : AppColors.primary,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              item.queueNumber,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-                fontSize: 13,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-
-          // Detail Plat & Kendaraan
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      item.plateNumber,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                        letterSpacing: 0.5,
+                  // Tombol "Lihat QR"
+                  OutlinedButton.icon(
+                    onPressed: () => _showTicketQrDialog(
+                      context,
+                      queueNumber: queue.queueNumber,
+                      fishermanName: queue.fishermanName,
+                      recommendationNumber: queue.recommendationNumber,
+                      engineName: queue.engineName,
+                      liters: queue.liters,
+                      qrPayload: queue.qrData,
+                    ),
+                    icon: const Icon(Icons.qr_code_rounded, size: 15),
+                    label: const Text('QR', style: TextStyle(fontSize: 11)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      side: const BorderSide(color: AppColors.border),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      visualDensity: VisualDensity.compact,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '• ${item.driverName}',
-                      style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '${item.vehicleName} (${item.liters.toInt()} L)',
-                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                ),
-              ],
-            ),
-          ),
-
-          // Status Badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-            decoration: BoxDecoration(
-              color: isServing ? AppColors.successContainer : AppColors.warningContainer,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isServing ? AppColors.success : AppColors.warning,
-                width: 0.8,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  isServing ? Icons.local_gas_station_rounded : Icons.access_time_rounded,
-                  size: 13,
-                  color: isServing ? AppColors.success : AppColors.warning,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  isServing ? 'Dilayani' : item.estimatedWaitTime,
-                  style: TextStyle(
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.bold,
-                    color: isServing ? AppColors.success : const Color(0xFF92400E),
                   ),
-                ),
-              ],
-            ),
+                ],
+              );
+            },
           ),
         ],
       ),

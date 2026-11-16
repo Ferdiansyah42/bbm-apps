@@ -1,23 +1,25 @@
 import 'dart:convert';
 
-/// Konfigurasi tipe kendaraan dan kuota maksimal harian solar subsidi
-class VehicleTypeConfig {
+/// Konfigurasi Kapasitas Mesin Kapal & Kuota Maksimal Solar Subsidi Nelayan SPBN
+class BoatEngineTier {
   final String id;
-  final String name;
-  final String description;
+  final String name; // Contoh: Mesin 15 PK
+  final String label; // Contoh: Mesin 15 PK - Maks. 45 Liter
   final double maxQuotaLiters;
+  final String description;
 
-  const VehicleTypeConfig({
+  const BoatEngineTier({
     required this.id,
     required this.name,
-    required this.description,
+    required this.label,
     required this.maxQuotaLiters,
+    required this.description,
   });
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is VehicleTypeConfig &&
+      other is BoatEngineTier &&
           runtimeType == other.runtimeType &&
           id == other.id;
 
@@ -25,50 +27,60 @@ class VehicleTypeConfig {
   int get hashCode => id.hashCode;
 }
 
-const List<VehicleTypeConfig> kVehicleTypes = [
-  VehicleTypeConfig(
-    id: 'r4_pribadi',
-    name: 'Mobil Pribadi Roda 4',
-    description: 'Kendaraan pribadi / SUV / MPV (Maks 40 L)',
-    maxQuotaLiters: 40.0,
+/// Alias kompatibilitas
+typedef VehicleTypeConfig = BoatEngineTier;
+
+const List<BoatEngineTier> kBoatEngineTiers = [
+  BoatEngineTier(
+    id: 'pk_10',
+    name: 'Mesin 10 PK',
+    label: 'Mesin 10 PK - Maks. 30 Liter',
+    maxQuotaLiters: 30.0,
+    description: 'Perahu Jukung / Motor Tempel 10 PK (Nelayan Kecil)',
   ),
-  VehicleTypeConfig(
-    id: 'r4_angkutan',
-    name: 'Roda 4 Angkutan Umum / Barang',
-    description: 'Pickup / Angkutan barang kecil (Maks 60 L)',
+  BoatEngineTier(
+    id: 'pk_15',
+    name: 'Mesin 15 PK',
+    label: 'Mesin 15 PK - Maks. 45 Liter',
+    maxQuotaLiters: 45.0,
+    description: 'Perahu Motor 15 PK / Mesin Dongfeng (Nelayan Tradisional)',
+  ),
+  BoatEngineTier(
+    id: 'pk_24',
+    name: 'Mesin 24 PK',
+    label: 'Mesin 24 PK - Maks. 60 Liter',
     maxQuotaLiters: 60.0,
+    description: 'Kapal Nelayan 24 PK / <5 GT (Nelayan Menengah)',
   ),
-  VehicleTypeConfig(
-    id: 'truk_r6',
-    name: 'Truk Roda 6 / Angkutan Barang',
-    description: 'Truk Roda 6 / Angkutan Logistik (Maks 80 L)',
+  BoatEngineTier(
+    id: 'pk_30',
+    name: 'Mesin 30 PK',
+    label: 'Mesin 30 PK - Maks. 80 Liter',
     maxQuotaLiters: 80.0,
-  ),
-  VehicleTypeConfig(
-    id: 'bus_besar',
-    name: 'Bus / Angkutan Penumpang Besar',
-    description: 'Bus sedang & besar antar kota (Maks 100 L)',
-    maxQuotaLiters: 100.0,
+    description: 'Kapal Gillnet / Purse Seine Kecil 30 PK (Maks 80 L)',
   ),
 ];
 
-/// Model Tiket Antrean Digital SiAntri Solar
+/// Kompatibilitas backwards
+const List<BoatEngineTier> kVehicleTypes = kBoatEngineTiers;
+
+/// Model Tiket Antrean Digital SiAntri Solar Nelayan (Boarding Pass)
 class SiAntriTicket {
   final String queueNumber; // format: SLR-00X
-  final String driverName;
-  final String plateNumber; // Seri Madura 'M'
-  final VehicleTypeConfig vehicleType;
-  final double requestedLiters;
-  final DateTime estimatedTime;
+  final String fishermanName; // Nama Nelayan
+  final String recommendationNumber; // Nomor Surat Rekomendasi / Barcode DKP
+  final BoatEngineTier engineTier; // Kapasitas Mesin Kapal & Kuota
+  final double requestedLiters; // Liter solar yang diminta
+  final DateTime estimatedTime; // Estimasi jam pengisian
   final String qrData;
   final DateTime createdAt;
   final String status; // 'WAITING', 'SERVING', 'COMPLETED'
 
   const SiAntriTicket({
     required this.queueNumber,
-    required this.driverName,
-    required this.plateNumber,
-    required this.vehicleType,
+    required this.fishermanName,
+    required this.recommendationNumber,
+    required this.engineTier,
     required this.requestedLiters,
     required this.estimatedTime,
     required this.qrData,
@@ -76,42 +88,56 @@ class SiAntriTicket {
     this.status = 'WAITING',
   });
 
+  // Getter kompatibilitas
+  String get driverName => fishermanName;
+  String get plateNumber => recommendationNumber;
+  BoatEngineTier get vehicleType => engineTier;
+
   Map<String, dynamic> toQrPayload() {
     return {
-      'app': 'SiAntri Solar SPBU Madura',
+      'app': 'SiAntri Solar Nelayan SPBN Madura',
       'queue_code': queueNumber,
-      'driver': driverName,
-      'plate': plateNumber,
-      'vehicle': vehicleType.name,
-      'liters': requestedLiters,
+      'recommendation_number': recommendationNumber,
+      'fisherman_name': fishermanName,
+      'engine_capacity': engineTier.name,
+      'requested_liters': requestedLiters,
       'est_time': estimatedTime.toIso8601String(),
       'created_at': createdAt.toIso8601String(),
+      'status': status,
     };
   }
 
   String encodeQr() => jsonEncode(toQrPayload());
 }
 
-/// Model Item Antrean Live (FIFO)
+/// Model Item Antrean Live SPBN (FIFO)
 class LiveQueueItem {
-  final String queueNumber;
-  final String plateNumber;
-  final String driverName;
-  final String vehicleName;
+  final String queueNumber; // format: SLR-00X
+  final String recommendationNumber; // Nomor Surat Rekomendasi
+  final String fishermanName; // Nama Nelayan
+  final String engineName; // Contoh: Mesin 15 PK
   final double liters;
   final String status; // 'SERVING' (Sedang Dilayani) atau 'WAITING' (Menunggu)
   final String estimatedWaitTime;
 
   const LiveQueueItem({
     required this.queueNumber,
-    required this.plateNumber,
-    required this.driverName,
-    required this.vehicleName,
+    required this.recommendationNumber,
+    required this.fishermanName,
+    required this.engineName,
     required this.liters,
     required this.status,
     required this.estimatedWaitTime,
   });
 
+  // Getter kompatibilitas
+  String get plateNumber => recommendationNumber;
+  String get driverName => fishermanName;
+  String get vehicleName => engineName;
+
   bool get isServing => status.toUpperCase() == 'SERVING';
   bool get isWaiting => status.toUpperCase() == 'WAITING';
+
+  String get qrData =>
+      'SIANTRI-SPBN-MADURA:$queueNumber:$recommendationNumber:${liters.toInt()}';
 }

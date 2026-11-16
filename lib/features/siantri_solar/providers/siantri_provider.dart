@@ -1,10 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../settings/models/spbn_settings.dart';
+import '../../settings/providers/settings_provider.dart';
 import '../models/siantri_models.dart';
 
 class SiAntriState {
   final double tankStockLiters;
+  final double tankCapacityLiters;
   final bool isAvailable;
   final bool isInsideGeofence;
+  final bool isMockLocation;
   final double currentDistanceMeters;
   final SiAntriTicket? currentTicket;
   final List<LiveQueueItem> liveQueues;
@@ -12,8 +16,10 @@ class SiAntriState {
 
   const SiAntriState({
     required this.tankStockLiters,
+    this.tankCapacityLiters = 8000.0,
     required this.isAvailable,
     required this.isInsideGeofence,
+    this.isMockLocation = false,
     required this.currentDistanceMeters,
     this.currentTicket,
     required this.liveQueues,
@@ -21,11 +27,27 @@ class SiAntriState {
   });
 
   int get activeQueueCount => liveQueues.length;
+  double get tankPercentage =>
+      (tankStockLiters / tankCapacityLiters).clamp(0.0, 1.0);
+
+  /// Menentukan apakah tombol pendaftaran antrean dapat ditekan berdasarkan
+  /// status saklar Geofence di Pengaturan (Bypass mode saat OFF)
+  bool canRegister(SpbnSettings settings) {
+    if (!isAvailable) return false;
+    // Jika Mode Bebas Uji (Geofencing Dinonaktifkan), tombol selalu aktif
+    if (!settings.isGeofenceEnabled) {
+      return true;
+    }
+    // Jika Geofencing Aktif, harus berada dalam radius dan bukan Fake GPS
+    return isInsideGeofence && !isMockLocation;
+  }
 
   SiAntriState copyWith({
     double? tankStockLiters,
+    double? tankCapacityLiters,
     bool? isAvailable,
     bool? isInsideGeofence,
+    bool? isMockLocation,
     double? currentDistanceMeters,
     SiAntriTicket? currentTicket,
     bool clearTicket = false,
@@ -34,8 +56,10 @@ class SiAntriState {
   }) {
     return SiAntriState(
       tankStockLiters: tankStockLiters ?? this.tankStockLiters,
+      tankCapacityLiters: tankCapacityLiters ?? this.tankCapacityLiters,
       isAvailable: isAvailable ?? this.isAvailable,
       isInsideGeofence: isInsideGeofence ?? this.isInsideGeofence,
+      isMockLocation: isMockLocation ?? this.isMockLocation,
       currentDistanceMeters: currentDistanceMeters ?? this.currentDistanceMeters,
       currentTicket: clearTicket ? null : (currentTicket ?? this.currentTicket),
       liveQueues: liveQueues ?? this.liveQueues,
@@ -44,40 +68,24 @@ class SiAntriState {
   }
 
   factory SiAntriState.initial() {
-    return SiAntriState(
-      tankStockLiters: 14250.0,
+    return const SiAntriState(
+      tankStockLiters: 4250.0, // 4.250 L dari 8.000 L kapasitas
+      tankCapacityLiters: 8000.0,
       isAvailable: true,
-      isInsideGeofence: true, // Default true agar tombol siap digunakan di awal
-      currentDistanceMeters: 25.0,
+      isInsideGeofence: true,
+      isMockLocation: false,
+      currentDistanceMeters: 38.0,
       currentTicket: null,
-      nextQueueNumber: 4,
-      liveQueues: const [
+      nextQueueNumber: 2, // Tiket berikutnya adalah SLR-002
+      liveQueues: [
         LiveQueueItem(
           queueNumber: 'SLR-001',
-          plateNumber: 'M 1892 AB',
-          driverName: 'Pak Halim',
-          vehicleName: 'Truk Roda 6 / Angkutan Barang',
-          liters: 80.0,
+          recommendationNumber: 'REK-DKP-2026-001',
+          fishermanName: 'Pak Achmad Zaini',
+          engineName: 'Mesin 15 PK',
+          liters: 45.0,
           status: 'SERVING',
-          estimatedWaitTime: 'Sedang Mengisi',
-        ),
-        LiveQueueItem(
-          queueNumber: 'SLR-002',
-          plateNumber: 'M 8234 CA',
-          driverName: 'Pak Rusdi',
-          vehicleName: 'Roda 4 Angkutan Umum / Barang',
-          liters: 50.0,
-          status: 'WAITING',
-          estimatedWaitTime: '~5 Menit',
-        ),
-        LiveQueueItem(
-          queueNumber: 'SLR-003',
-          plateNumber: 'M 4120 WP',
-          driverName: 'Pak Samsul',
-          vehicleName: 'Bus / Angkutan Penumpang Besar',
-          liters: 100.0,
-          status: 'WAITING',
-          estimatedWaitTime: '~12 Menit',
+          estimatedWaitTime: 'Sedang Dilayani',
         ),
       ],
     );
@@ -91,35 +99,52 @@ class SiAntriNotifier extends Notifier<SiAntriState> {
   }
 
   /// Toggle / Set status simulasi geofence
-  void setGeofenceStatus(bool isInside, double distance) {
+  void setGeofenceStatus({
+    required bool isInside,
+    required double distance,
+    bool isMock = false,
+  }) {
     state = state.copyWith(
       isInsideGeofence: isInside,
       currentDistanceMeters: distance,
+      isMockLocation: isMock,
     );
   }
 
-  /// Pendaftaran antrean dan pembuatan tiket QR Code
+  /// Pendaftaran antrean dan penerbitan tiket QR Nelayan
   SiAntriTicket registerQueue({
-    required String driverName,
-    required String plateNumber,
-    required VehicleTypeConfig vehicleType,
+    String? fishermanName,
+    String? recommendationNumber,
+    BoatEngineTier? engineTier,
     required double requestedLiters,
+    // Parameter kompatibilitas
+    String? driverName,
+    String? plateNumber,
+    BoatEngineTier? vehicleType,
   }) {
-    final queueNumberStr = 'SLR-${state.nextQueueNumber.toString().padLeft(3, '0')}';
+    final finalFisherman = (fishermanName ?? driverName ?? 'Nelayan').trim();
+    final finalRecommendation =
+        (recommendationNumber ?? plateNumber ?? 'REK-DKP-2026-084').trim().toUpperCase();
+    final finalTier = engineTier ?? vehicleType ?? kBoatEngineTiers[1];
+
+    final queueNumberStr =
+        'SLR-${state.nextQueueNumber.toString().padLeft(3, '0')}';
     final now = DateTime.now();
-    // Estimasi kedatangan berdasarkan urutan antrean (~6 menit per kendaraan)
+
+    // Estimasi kedatangan berdasarkan urutan antrean (~8 menit per kapal)
     final waitingCount = state.liveQueues.where((q) => q.isWaiting).length;
-    final estimatedMinutes = 5 + (waitingCount * 6);
+    final estimatedMinutes = 8 + (waitingCount * 8);
     final estimatedTime = now.add(Duration(minutes: estimatedMinutes));
 
     final newTicket = SiAntriTicket(
       queueNumber: queueNumberStr,
-      driverName: driverName.trim(),
-      plateNumber: plateNumber.trim().toUpperCase(),
-      vehicleType: vehicleType,
+      fishermanName: finalFisherman,
+      recommendationNumber: finalRecommendation,
+      engineTier: finalTier,
       requestedLiters: requestedLiters,
       estimatedTime: estimatedTime,
-      qrData: 'SIANTRI-SPBU-MADURA:$queueNumberStr:${plateNumber.trim().toUpperCase()}:${requestedLiters.toInt()}',
+      qrData:
+          'SIANTRI-SPBN-MADURA:$queueNumberStr:$finalRecommendation:${requestedLiters.toInt()}',
       createdAt: now,
       status: 'WAITING',
     );
@@ -128,9 +153,9 @@ class SiAntriNotifier extends Notifier<SiAntriState> {
       ..add(
         LiveQueueItem(
           queueNumber: queueNumberStr,
-          plateNumber: plateNumber.trim().toUpperCase(),
-          driverName: driverName.trim(),
-          vehicleName: vehicleType.name,
+          recommendationNumber: finalRecommendation,
+          fishermanName: finalFisherman,
+          engineName: finalTier.name,
           liters: requestedLiters,
           status: 'WAITING',
           estimatedWaitTime: '~$estimatedMinutes Menit',
@@ -141,7 +166,8 @@ class SiAntriNotifier extends Notifier<SiAntriState> {
       currentTicket: newTicket,
       liveQueues: updatedQueues,
       nextQueueNumber: state.nextQueueNumber + 1,
-      tankStockLiters: (state.tankStockLiters - requestedLiters).clamp(0.0, 999999.0),
+      tankStockLiters:
+          (state.tankStockLiters - requestedLiters).clamp(0.0, state.tankCapacityLiters),
     );
 
     return newTicket;
@@ -151,7 +177,8 @@ class SiAntriNotifier extends Notifier<SiAntriState> {
   void cancelTicket() {
     if (state.currentTicket == null) return;
     final ticketCode = state.currentTicket!.queueNumber;
-    final updatedQueues = state.liveQueues.where((q) => q.queueNumber != ticketCode).toList();
+    final updatedQueues =
+        state.liveQueues.where((q) => q.queueNumber != ticketCode).toList();
 
     state = state.copyWith(
       clearTicket: true,
