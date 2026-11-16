@@ -18,9 +18,10 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify main navigation items
-    expect(find.text('Beranda'), findsOneWidget);
-    expect(find.text('Antrean'), findsOneWidget);
-    expect(find.text('QR Kuota'), findsOneWidget);
+    expect(find.text('SiAntri'), findsOneWidget);
+    expect(find.text('Radar SPBU'), findsOneWidget);
+    expect(find.text('Prioritas'), findsOneWidget);
+    expect(find.text('Pas QR'), findsOneWidget);
     expect(find.text('Riwayat'), findsOneWidget);
   });
 }

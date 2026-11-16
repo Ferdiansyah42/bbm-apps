@@ -9,6 +9,7 @@ import 'features/history/presentation/history_screen.dart';
 import 'features/home_geofence/presentation/home_dashboard_screen.dart';
 import 'features/queue/presentation/queue_screen.dart';
 import 'features/quota_qr/presentation/digital_pass_screen.dart';
+import 'features/siantri_solar/presentation/siantri_solar_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +35,7 @@ class AntrianSolarApp extends ConsumerWidget {
     final authState = ref.watch(authNotifierProvider);
 
     return MaterialApp(
-      title: AppConstants.appName,
+      title: 'SiAntri Solar - SPBU Madura',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
@@ -93,6 +94,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = const [
+    SiAntriSolarScreen(),
     HomeDashboardScreen(),
     QueueScreen(),
     DigitalPassScreen(),
@@ -115,19 +117,24 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
           onTap: (index) => setState(() => _currentIndex = index),
           items: const [
             BottomNavigationBarItem(
+              icon: Icon(Icons.local_gas_station_outlined),
+              activeIcon: Icon(Icons.local_gas_station_rounded),
+              label: 'SiAntri',
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Icons.explore_outlined),
               activeIcon: Icon(Icons.explore_rounded),
-              label: 'Beranda',
+              label: 'Radar SPBU',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.confirmation_number_outlined),
               activeIcon: Icon(Icons.confirmation_number_rounded),
-              label: 'Antrean',
+              label: 'Prioritas',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.qr_code_2_outlined),
               activeIcon: Icon(Icons.qr_code_2_rounded),
-              label: 'QR Kuota',
+              label: 'Pas QR',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.history_outlined),
