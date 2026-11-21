@@ -328,6 +328,13 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // ==========================================
+            // 0. GREETING & STATUS DERMAGA PESISIR (HUMAN TOUCH)
+            // ==========================================
+            _buildHarborGreetingBar(context),
+
+            const SizedBox(height: 12),
+
+            // ==========================================
             // 1. HEADER & STATUS BAR SPBN (STOK TANGKI)
             // ==========================================
             _buildHeaderStatusBar(context, state, settings),
@@ -364,6 +371,127 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
             const SizedBox(height: 24),
           ],
         ),
+      ),
+    );
+  }
+
+  // ==========================================
+  // WIDGET 0: GREETING & STATUS DERMAGA PESISIR
+  // ==========================================
+  Widget _buildHarborGreetingBar(BuildContext context) {
+    final auth = ref.watch(authNotifierProvider);
+    final user = auth.currentUser;
+    final now = DateTime.now();
+    String greeting;
+    if (now.hour >= 4 && now.hour < 11) {
+      greeting = 'Selamat Pagi';
+    } else if (now.hour >= 11 && now.hour < 15) {
+      greeting = 'Selamat Siang';
+    } else if (now.hour >= 15 && now.hour < 18) {
+      greeting = 'Selamat Sore';
+    } else {
+      greeting = 'Selamat Malam';
+    }
+
+    final name = (user?.nama != null && user!.nama.isNotEmpty)
+        ? user.nama
+        : "Cak Syafi'i";
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F2B48).withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF0284C7), Color(0xFF0369A1)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.waves_rounded, color: Colors.white, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      '$greeting, $name',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.textPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(width: 4),
+                    const Text('⚓', style: TextStyle(fontSize: 12)),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                const Row(
+                  children: [
+                    Icon(Icons.wb_sunny_rounded, size: 12, color: Color(0xFFD97706)),
+                    SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        'Selat Madura • Ombak 0.4m (Tenang) • Angin 8 knot',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFFDCFCE7),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFF86EFAC)),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.circle, size: 6, color: Color(0xFF16A34A)),
+                SizedBox(width: 4),
+                Text(
+                  'Nozzle Siap',
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF15803D),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -552,9 +680,24 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                   borderRadius: BorderRadius.circular(8),
                   child: LinearProgressIndicator(
                     value: state.tankPercentage,
-                    minHeight: 8,
+                    minHeight: 10,
                     backgroundColor: Colors.white.withValues(alpha: 0.15),
                     valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF38BDF8)),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                // Indikator Skala Level Tangki (E - 25% - 50% - 75% - F)
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 2),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('E', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 9.5, fontWeight: FontWeight.bold)),
+                      Text('25%', style: TextStyle(color: Color(0xFF64748B), fontSize: 9)),
+                      Text('50%', style: TextStyle(color: Color(0xFF64748B), fontSize: 9)),
+                      Text('75%', style: TextStyle(color: Color(0xFF64748B), fontSize: 9)),
+                      Text('F', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 9.5, fontWeight: FontWeight.bold)),
+                    ],
                   ),
                 ),
 
@@ -1380,7 +1523,71 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
 
             const SizedBox(height: 12),
 
-            // 3. Dropdown Kapasitas Mesin Kapal & Kuota Maksimal
+            // 3. Pilihan Cepat Tipe Mesin Kapal (Tactile Visual Chips)
+            const Text(
+              'Pilih Kapasitas Mesin Kapal:',
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: kBoatEngineTiers.map((tier) {
+                final isSelected = _selectedEngine.id == tier.id;
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    child: InkWell(
+                      onTap: () => _onEngineChanged(tier),
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                        decoration: BoxDecoration(
+                          color: isSelected ? const Color(0xFFEFF6FF) : const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isSelected ? AppColors.primary : const Color(0xFFE2E8F0),
+                            width: isSelected ? 1.8 : 1.0,
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(
+                              tier.id == 'pk_30' ? Icons.directions_boat_rounded : Icons.sailing_rounded,
+                              size: 18,
+                              color: isSelected ? AppColors.primary : const Color(0xFF64748B),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              tier.name.replaceAll('Mesin ', ''),
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                              ),
+                            ),
+                            Text(
+                              '${tier.maxQuotaLiters.toInt()}L',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: isSelected ? const Color(0xFF2563EB) : const Color(0xFF94A3B8),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+
+            const SizedBox(height: 10),
+
+            // Dropdown Kapasitas Mesin Kapal & Kuota Maksimal (Tersinkronisasi)
             DropdownButtonFormField<BoatEngineTier>(
               value: _selectedEngine,
               decoration: const InputDecoration(
@@ -1401,6 +1608,44 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
             ),
 
             const SizedBox(height: 12),
+
+            // Pilihan Cepat Kuota (Liter Chips)
+            Row(
+              children: [
+                const Text(
+                  'Pilihan Cepat:',
+                  style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(width: 8),
+                ...[15.0, 30.0, 45.0, 60.0].where((l) => l <= _selectedEngine.maxQuotaLiters).map((l) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          _litersController.text = l.toInt().toString();
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFCBD5E1)),
+                        ),
+                        child: Text(
+                          '${l.toInt()}L',
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
+
+            const SizedBox(height: 8),
 
             // 4. Input Jumlah Permintaan (Liter) & Tombol Pintas "Isi Maksimal"
             Row(
