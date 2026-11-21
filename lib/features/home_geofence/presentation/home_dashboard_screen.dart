@@ -96,8 +96,7 @@ class HomeDashboardScreen extends ConsumerWidget {
     final int queueCount = station?.activeQueueCount ?? 3;
 
     return Card(
-      elevation: 1,
-      shadowColor: AppColors.primary.withOpacity(0.06),
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
         side: const BorderSide(color: AppColors.border),
@@ -273,8 +272,7 @@ class HomeDashboardScreen extends ConsumerWidget {
     }
 
     return Card(
-      elevation: 1,
-      shadowColor: badgeColor.withOpacity(0.12),
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
         side: BorderSide(
@@ -335,7 +333,7 @@ class HomeDashboardScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: badgeContainer,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: badgeColor.withOpacity(0.3)),
+                border: Border.all(color: badgeColor.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
@@ -463,8 +461,7 @@ class HomeDashboardScreen extends ConsumerWidget {
     final int remainingDays = letter?.remainingDays ?? 70;
 
     return Card(
-      elevation: 1,
-      shadowColor: AppColors.primary.withOpacity(0.06),
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
         side: const BorderSide(color: AppColors.border),
@@ -570,9 +567,9 @@ class HomeDashboardScreen extends ConsumerWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: BorderSide(color: AppColors.secondary.withOpacity(0.4), width: 1.2),
+        side: BorderSide(color: AppColors.secondary.withValues(alpha: 0.4), width: 1.2),
       ),
-      color: AppColors.infoContainer.withOpacity(0.35),
+      color: AppColors.infoContainer.withValues(alpha: 0.35),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

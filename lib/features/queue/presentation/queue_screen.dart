@@ -137,8 +137,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
 
   Widget _buildActiveTicketCard(BuildContext context, QueueTicket ticket) {
     return Card(
-      elevation: 2,
-      shadowColor: AppColors.primary.withOpacity(0.12),
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(22),
         side: const BorderSide(color: AppColors.primary, width: 1.5),
@@ -263,8 +262,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
     bool isQuotaAvailable,
   ) {
     return Card(
-      elevation: 1,
-      shadowColor: AppColors.primary.withOpacity(0.06),
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(22),
         side: const BorderSide(color: AppColors.border),

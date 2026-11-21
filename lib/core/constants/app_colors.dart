@@ -49,4 +49,57 @@ class AppColors {
   static const Color geofenceValidStroke = Color(0xFF16A34A);
   static const Color geofenceInvalidFill = Color(0x33DC2626); // Translucent Red
   static const Color geofenceInvalidStroke = Color(0xFFDC2626);
+
+  // Modern Gradients for Cards & Buttons
+  static const LinearGradient gradientOcean = LinearGradient(
+    colors: [Color(0xFF0A2540), Color(0xFF0F4C81), Color(0xFF1E3A8A)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient gradientOceanLight = LinearGradient(
+    colors: [Color(0xFF0F4C81), Color(0xFF0284C7)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient gradientSolar = LinearGradient(
+    colors: [Color(0xFFD97706), Color(0xFFF59E0B), Color(0xFFFBBF24)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient gradientSuccess = LinearGradient(
+    colors: [Color(0xFF059669), Color(0xFF10B981)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient gradientCard = LinearGradient(
+    colors: [Color(0xFFFFFFFF), Color(0xFFF8FAFC)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  // Box Shadows
+  static List<BoxShadow> get cardShadow => [
+    BoxShadow(
+      color: const Color(0xFF0F2B48).withValues(alpha: 0.05),
+      blurRadius: 16,
+      offset: const Offset(0, 4),
+    ),
+    BoxShadow(
+      color: const Color(0xFF0F2B48).withValues(alpha: 0.02),
+      blurRadius: 4,
+      offset: const Offset(0, 1),
+    ),
+  ];
+
+  static List<BoxShadow> get buttonShadow => [
+    BoxShadow(
+      color: primary.withValues(alpha: 0.28),
+      blurRadius: 14,
+      offset: const Offset(0, 5),
+    ),
+  ];
 }

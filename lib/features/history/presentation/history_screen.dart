@@ -61,13 +61,12 @@ class HistoryScreen extends ConsumerWidget {
     final bool isAnomaly = tx.isAnomaly;
 
     return Card(
-      elevation: 1,
-      shadowColor: isAnomaly ? AppColors.danger.withOpacity(0.08) : AppColors.primary.withOpacity(0.04),
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         side: BorderSide(
-          color: isAnomaly ? AppColors.danger.withOpacity(0.5) : AppColors.border,
-          width: isAnomaly ? 1.2 : 1.0,
+          color: isAnomaly ? AppColors.danger.withValues(alpha: 0.5) : AppColors.border,
+          width: isAnomaly ? 1.4 : 1.0,
         ),
       ),
       color: AppColors.surface,
@@ -163,9 +162,9 @@ class HistoryScreen extends ConsumerWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.dangerContainer.withOpacity(0.6),
+                  color: AppColors.dangerContainer.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.danger.withOpacity(0.3)),
+                  border: Border.all(color: AppColors.danger.withValues(alpha: 0.3)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

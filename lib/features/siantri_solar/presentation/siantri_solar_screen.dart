@@ -380,210 +380,264 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF0F2B48), Color(0xFF1E4976)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(18),
+        gradient: AppColors.gradientOcean,
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F2B48).withValues(alpha: 0.25),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: const Color(0xFF0F2B48).withValues(alpha: 0.3),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          // Nama SPBN & Badge Ketersediaan
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.anchor_rounded,
-                      color: Color(0xFF93C5FD),
-                      size: 18,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        settings.spbnName,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
+          // Background Decorative Ocean Ring
+          Positioned(
+            right: -25,
+            top: -25,
+            child: Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.04),
               ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.2),
-                  border: Border.all(color: const Color(0xFF34D399)),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.check_circle_rounded, color: Color(0xFF34D399), size: 13),
-                    SizedBox(width: 4),
-                    Text(
-                      'Solar Tersedia',
-                      style: TextStyle(
-                        color: Color(0xFF34D399),
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-
-          const SizedBox(height: 14),
-
-          // Sisa Stok Tangki & Progress Bar
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Sisa Stok Tangki SPBN',
-                    style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
-                  ),
-                  const SizedBox(height: 2),
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '${AppFormatters.formatNumber(state.tankStockLiters)} L ',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w900,
+          Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Nama SPBN & Badge Ketersediaan
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.anchor_rounded,
+                              color: Color(0xFF93C5FD),
+                              size: 16,
+                            ),
                           ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              settings.spbnName,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.2,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withValues(alpha: 0.22),
+                        border: Border.all(color: const Color(0xFF34D399)),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Color(0xFF34D399),
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          const Text(
+                            'Solar Tersedia',
+                            style: TextStyle(
+                              color: Color(0xFF34D399),
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+
+                // Sisa Stok Tangki & Progress Bar
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(Icons.opacity_rounded, size: 13, color: Color(0xFF38BDF8)),
+                            SizedBox(width: 4),
+                            Text(
+                              'Sisa Stok Tangki SPBN',
+                              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11.5, fontWeight: FontWeight.w500),
+                            ),
+                          ],
                         ),
-                        TextSpan(
-                          text: '/ ${AppFormatters.formatNumber(state.tankCapacityLiters)} L',
-                          style: const TextStyle(
-                            color: Color(0xFF94A3B8),
-                            fontSize: 13,
-                            fontWeight: FontWeight.normal,
+                        const SizedBox(height: 3),
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: '${AppFormatters.formatNumber(state.tankStockLiters)} L ',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              TextSpan(
+                                text: '/ ${AppFormatters.formatNumber(state.tankCapacityLiters)} L',
+                                style: const TextStyle(
+                                  color: Color(0xFF94A3B8),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+                      ),
+                      child: Text(
+                        '$percentage%',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+
+                // Progress Bar Sisa Stok Tangki
+                ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '$percentage%',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
+                  child: LinearProgressIndicator(
+                    value: state.tankPercentage,
+                    minHeight: 8,
+                    backgroundColor: Colors.white.withValues(alpha: 0.15),
+                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF38BDF8)),
                   ),
                 ),
-              ),
-            ],
-          ),
 
-          const SizedBox(height: 8),
+                const SizedBox(height: 16),
 
-          // Progress Bar Sisa Stok Tangki
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: state.tankPercentage,
-              minHeight: 8,
-              backgroundColor: Colors.white.withValues(alpha: 0.15),
-              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF38BDF8)),
+                // Ringkasan Info Bawah: Antrean Aktif & Estimasi
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF38BDF8).withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(Icons.groups_rounded, color: Color(0xFF93C5FD), size: 18),
+                            ),
+                            const SizedBox(width: 9),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Antrean Aktif',
+                                    style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 10.5)),
+                                Text('${state.activeQueueCount} Kapal',
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13.5)),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFDE047).withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(Icons.schedule_rounded, color: Color(0xFFFDE047), size: 18),
+                            ),
+                            const SizedBox(width: 9),
+                            const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Est. Layanan',
+                                    style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 10.5)),
+                                Text('~8 Menit / Kapal',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13.5)),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ),
-
-          const SizedBox(height: 14),
-
-          // Ringkasan Info Bawah: Antrean Aktif & Estimasi
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.groups_rounded, color: Color(0xFF93C5FD), size: 18),
-                      const SizedBox(width: 8),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Antrean Aktif',
-                              style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 10)),
-                          Text('${state.activeQueueCount} Kapal',
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13)),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.schedule_rounded, color: Color(0xFFFDE047), size: 18),
-                      SizedBox(width: 8),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Est. Layanan',
-                              style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 10)),
-                          Text('~8 Menit / Kapal',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13)),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -1231,235 +1285,223 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
     SpbnSettings settings,
     bool isAllowed,
   ) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-        side: const BorderSide(color: AppColors.border),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
+        boxShadow: AppColors.cardShadow,
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Header Form
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryContainer,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(Icons.assignment_add, color: AppColors.primary, size: 20),
+      padding: const EdgeInsets.all(18.0),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Header Form
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(9),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryContainer,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  const SizedBox(width: 10),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Ambil Nomor Antrean Nelayan',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        Text(
-                          'Input identitas kapal & rekomendasi DKP',
-                          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              const Divider(height: 24),
-
-              // 1. Input Nama Lengkap Nelayan
-              TextFormField(
-                controller: _fishermanNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nama Lengkap Nelayan',
-                  hintText: "Contoh: Moh. Syafi'i",
-                  prefixIcon: Icon(Icons.person_outline_rounded),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  child: const Icon(Icons.assignment_add, color: AppColors.primary, size: 22),
                 ),
-                validator: (val) {
-                  if (val == null || val.trim().isEmpty) {
-                    return 'Nama nelayan wajib diisi';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 12),
-
-              // 2. Input Nomor Surat Rekomendasi / Barcode
-              TextFormField(
-                controller: _recommendationController,
-                textCapitalization: TextCapitalization.characters,
-                decoration: InputDecoration(
-                  labelText: 'Nomor Surat Rekomendasi / Barcode',
-                  hintText: 'Contoh: REK-DKP-2026-084',
-                  prefixIcon: const Icon(Icons.qr_code_rounded),
-                  suffixIcon: IconButton(
-                    tooltip: 'Gunakan nomor rekomendasi default DKP',
-                    icon: const Icon(Icons.auto_fix_high_rounded, color: AppColors.primary),
-                    onPressed: () {
-                      _recommendationController.text = 'REK-DKP-2026-084';
-                    },
-                  ),
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                ),
-                validator: (val) {
-                  if (val == null || val.trim().isEmpty) {
-                    return 'Nomor surat rekomendasi wajib diisi';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 12),
-
-              // 3. Dropdown Kapasitas Mesin Kapal & Kuota Maksimal
-              DropdownButtonFormField<BoatEngineTier>(
-                value: _selectedEngine,
-                decoration: const InputDecoration(
-                  labelText: 'Kapasitas Mesin Kapal & Kuota',
-                  prefixIcon: Icon(Icons.directions_boat_outlined),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                ),
-                items: kBoatEngineTiers.map((tier) {
-                  return DropdownMenuItem<BoatEngineTier>(
-                    value: tier,
-                    child: Text(
-                      tier.label,
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                    ),
-                  );
-                }).toList(),
-                onChanged: _onEngineChanged,
-              ),
-
-              const SizedBox(height: 12),
-
-              // 4. Input Jumlah Permintaan (Liter) & Tombol Pintas "Isi Maksimal"
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _litersController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: InputDecoration(
-                        labelText: 'Permintaan Solar (Liter)',
-                        hintText: 'Contoh: ${_selectedEngine.maxQuotaLiters.toInt()}',
-                        suffixText: 'Liter',
-                        prefixIcon: const Icon(Icons.local_gas_station_rounded),
-                        border: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(12)),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      ),
-                      validator: (val) {
-                        final liters = double.tryParse(val ?? '');
-                        if (liters == null || liters <= 0) {
-                          return 'Jumlah liter harus lebih dari 0';
-                        }
-                        if (liters > _selectedEngine.maxQuotaLiters) {
-                          return 'Maksimal ${_selectedEngine.maxQuotaLiters.toInt()} L untuk ${_selectedEngine.name}';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Tombol Pintas "Isi Maksimal"
-                  SizedBox(
-                    height: 48,
-                    child: ElevatedButton.icon(
-                      onPressed: _fillMaxLiters,
-                      icon: const Icon(Icons.flash_on_rounded, size: 16),
-                      label: const Text(
-                        'Isi Maksimal',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFE0F2FE),
-                        foregroundColor: const Color(0xFF0369A1),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: const BorderSide(color: Color(0xFFBAE6FD)),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Ambil Nomor Antrean Nelayan',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
                         ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              // 5. Tombol Hijau Utama "Daftar & Dapatkan Tiket QR"
-              SizedBox(
-                height: 50,
-                child: ElevatedButton.icon(
-                  onPressed: isAllowed ? _submitRegistration : null,
-                  icon: const Icon(Icons.qr_code_2_rounded, size: 22),
-                  label: Text(
-                    isAllowed
-                        ? 'Daftar & Dapatkan Tiket QR'
-                        : 'Tombol Terkunci (Di Luar Radius SPBN)',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0D9488), // Maritime Emerald Teal
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.grey.shade300,
-                    disabledForegroundColor: Colors.grey.shade600,
-                    elevation: isAllowed ? 2 : 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                ),
-              ),
-
-              // Penjelasan tombol saat terkunci
-              if (!isAllowed) ...[
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(Icons.info_outline_rounded, size: 14, color: AppColors.danger),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        settings.isGeofenceEnabled
-                            ? 'Untuk membuka tombol ini saat di rumah, buka Pengaturan lalu matikan saklar Geofencing (Mode Bebas Uji).'
-                            : 'Stok solar SPBN habis atau data tidak valid.',
-                        style: const TextStyle(fontSize: 11, color: AppColors.danger),
+                      Text(
+                        'Input identitas kapal & rekomendasi DKP',
+                        style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
+            ),
+
+            const Divider(height: 24),
+
+            // 1. Input Nama Lengkap Nelayan
+            TextFormField(
+              controller: _fishermanNameController,
+              decoration: const InputDecoration(
+                labelText: 'Nama Lengkap Nelayan',
+                hintText: "Contoh: Moh. Syafi'i",
+                prefixIcon: Icon(Icons.person_outline_rounded, color: AppColors.primary),
+                contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              ),
+              validator: (val) {
+                if (val == null || val.trim().isEmpty) {
+                  return 'Nama nelayan wajib diisi';
+                }
+                return null;
+              },
+            ),
+
+            const SizedBox(height: 12),
+
+            // 2. Input Nomor Surat Rekomendasi / Barcode
+            TextFormField(
+              controller: _recommendationController,
+              textCapitalization: TextCapitalization.characters,
+              decoration: InputDecoration(
+                labelText: 'Nomor Surat Rekomendasi / Barcode',
+                hintText: 'Contoh: REK-DKP-2026-084',
+                prefixIcon: const Icon(Icons.qr_code_rounded, color: AppColors.primary),
+                suffixIcon: IconButton(
+                  tooltip: 'Gunakan nomor rekomendasi default DKP',
+                  icon: const Icon(Icons.auto_fix_high_rounded, color: AppColors.primary),
+                  onPressed: () {
+                    _recommendationController.text = 'REK-DKP-2026-084';
+                  },
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              ),
+              validator: (val) {
+                if (val == null || val.trim().isEmpty) {
+                  return 'Nomor surat rekomendasi wajib diisi';
+                }
+                return null;
+              },
+            ),
+
+            const SizedBox(height: 12),
+
+            // 3. Dropdown Kapasitas Mesin Kapal & Kuota Maksimal
+            DropdownButtonFormField<BoatEngineTier>(
+              value: _selectedEngine,
+              decoration: const InputDecoration(
+                labelText: 'Kapasitas Mesin Kapal & Kuota',
+                prefixIcon: Icon(Icons.directions_boat_outlined, color: AppColors.primary),
+                contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              ),
+              items: kBoatEngineTiers.map((tier) {
+                return DropdownMenuItem<BoatEngineTier>(
+                  value: tier,
+                  child: Text(
+                    tier.label,
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                  ),
+                );
+              }).toList(),
+              onChanged: _onEngineChanged,
+            ),
+
+            const SizedBox(height: 12),
+
+            // 4. Input Jumlah Permintaan (Liter) & Tombol Pintas "Isi Maksimal"
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _litersController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: InputDecoration(
+                      labelText: 'Permintaan Solar (Liter)',
+                      hintText: 'Contoh: ${_selectedEngine.maxQuotaLiters.toInt()}',
+                      suffixText: 'Liter',
+                      prefixIcon: const Icon(Icons.local_gas_station_rounded, color: AppColors.primary),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    ),
+                    validator: (val) {
+                      final liters = double.tryParse(val ?? '');
+                      if (liters == null || liters <= 0) {
+                        return 'Jumlah liter harus lebih dari 0';
+                      }
+                      if (liters > _selectedEngine.maxQuotaLiters) {
+                        return 'Maksimal ${_selectedEngine.maxQuotaLiters.toInt()} L untuk ${_selectedEngine.name}';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Tombol Pintas "Isi Maksimal"
+                SizedBox(
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    onPressed: _fillMaxLiters,
+                    icon: const Icon(Icons.flash_on_rounded, size: 16),
+                    label: const Text(
+                      'Isi Maksimal',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFE0F2FE),
+                      foregroundColor: const Color(0xFF0369A1),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: const BorderSide(color: Color(0xFFBAE6FD)),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // 5. Tombol Hijau Utama "Daftar & Dapatkan Tiket QR"
+            SizedBox(
+              height: 50,
+              child: ElevatedButton.icon(
+                onPressed: isAllowed ? _submitRegistration : null,
+                icon: const Icon(Icons.qr_code_2_rounded, size: 22),
+                label: Text(
+                  isAllowed
+                      ? 'Daftar & Dapatkan Tiket QR'
+                      : 'Tombol Terkunci (Di Luar Radius SPBN)',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0D9488), // Maritime Emerald Teal
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: Colors.grey.shade300,
+                  disabledForegroundColor: Colors.grey.shade600,
+                  elevation: isAllowed ? 3 : 0,
+                  shadowColor: const Color(0xFF0D9488).withValues(alpha: 0.35),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+              ),
+            ),
+
+            // Penjelasan tombol saat terkunci
+            if (!isAllowed) ...[
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.info_outline_rounded, size: 14, color: AppColors.danger),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      settings.isGeofenceEnabled
+                          ? 'Untuk membuka tombol ini saat di rumah, buka Pengaturan lalu matikan saklar Geofencing (Mode Bebas Uji).'
+                          : 'Stok solar SPBN habis atau data tidak valid.',
+                      style: const TextStyle(fontSize: 11, color: AppColors.danger),
+                    ),
+                  ),
+                ],
+              ),
             ],
-          ),
+          ],
         ),
       ),
     );
@@ -1472,24 +1514,32 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.border),
+        boxShadow: AppColors.cardShadow,
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.format_list_numbered_rounded, color: AppColors.primary, size: 20),
-                  SizedBox(width: 8),
-                  Text(
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryContainer,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.format_list_numbered_rounded, color: AppColors.primary, size: 18),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
                     'Daftar Antrean Live (FIFO)',
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 15.5,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textPrimary,
                     ),
@@ -1513,7 +1563,7 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -1527,15 +1577,16 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                 children: [
                   // Badge Kode Antrean
                   Container(
-                    width: 72,
+                    width: 76,
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
                       color: isServing
                           ? const Color(0xFF10B981).withValues(alpha: 0.15)
                           : const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isServing ? const Color(0xFF34D399) : const Color(0xFFCBD5E1),
+                        width: isServing ? 1.5 : 1.0,
                       ),
                     ),
                     child: Column(
@@ -1543,7 +1594,7 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                         Text(
                           queue.queueNumber,
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 14.5,
                             fontWeight: FontWeight.w900,
                             color: isServing ? const Color(0xFF047857) : AppColors.textPrimary,
                           ),
@@ -1551,7 +1602,7 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                         Text(
                           isServing ? 'Dilayani' : 'Menunggu',
                           style: TextStyle(
-                            fontSize: 9,
+                            fontSize: 9.5,
                             fontWeight: FontWeight.bold,
                             color: isServing ? const Color(0xFF047857) : AppColors.textMuted,
                           ),
@@ -1568,7 +1619,7 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                         Text(
                           queue.fishermanName,
                           style: const TextStyle(
-                            fontSize: 13,
+                            fontSize: 13.5,
                             fontWeight: FontWeight.bold,
                             color: AppColors.textPrimary,
                           ),
@@ -1576,13 +1627,35 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 2),
-                        Text(
-                          '${queue.engineName} • ${queue.liters.toInt()} L',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: AppColors.textSecondary,
-                          ),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEFF6FF),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                queue.engineName,
+                                style: const TextStyle(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF1D4ED8),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              '${queue.liters.toInt()} L',
+                              style: const TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.accentWarm,
+                              ),
+                            ),
+                          ],
                         ),
+                        const SizedBox(height: 2),
                         Text(
                           queue.recommendationNumber,
                           style: const TextStyle(
@@ -1606,14 +1679,14 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                       qrPayload: queue.qrData,
                     ),
                     icon: const Icon(Icons.qr_code_rounded, size: 15),
-                    label: const Text('QR', style: TextStyle(fontSize: 11)),
+                    label: const Text('QR', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.primary,
                       side: const BorderSide(color: AppColors.border),
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       visualDensity: VisualDensity.compact,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                   ),
