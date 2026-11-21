@@ -199,7 +199,6 @@ class _OperatorPanelScreenState extends ConsumerState<OperatorPanelScreen> {
           ],
         ),
         actions: [
-          const RoleSwitcherPill(),
           IconButton(
             tooltip: 'Pengaturan Geofence',
             icon: const Icon(Icons.settings_outlined, color: Colors.white),
@@ -247,6 +246,11 @@ class _OperatorPanelScreenState extends ConsumerState<OperatorPanelScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Ribbon Pengalih Peran Cepat (Lega & Nyaman)
+            const RoleSwitcherPill(isExpanded: true),
+
+            const SizedBox(height: 14),
+
             // ==========================================
             // 1. RINGKASAN ATAS: STATUS TANGKI & ANTREAN OPERATOR
             // ==========================================
