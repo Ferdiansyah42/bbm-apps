@@ -14,6 +14,7 @@ import 'features/quota_qr/presentation/digital_pass_screen.dart';
 import 'features/siantri_solar/models/siantri_models.dart';
 import 'features/siantri_solar/presentation/siantri_solar_screen.dart';
 import 'features/siantri_solar/providers/siantri_provider.dart';
+import 'core/widgets/lenis_smooth_scroll.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +42,7 @@ class AntrianSolarApp extends ConsumerWidget {
     return MaterialApp(
       title: 'SiAntri Solar - SPBU Madura',
       debugShowCheckedModeBanner: false,
+      scrollBehavior: const LenisSmoothScrollBehavior(),
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(

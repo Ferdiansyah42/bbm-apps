@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/widgets/motion_card.dart';
 import '../../../core/widgets/role_switcher_pill.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../settings/presentation/settings_screen.dart';
@@ -247,42 +248,62 @@ class _OperatorPanelScreenState extends ConsumerState<OperatorPanelScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Ribbon Pengalih Peran Cepat (Lega & Nyaman)
-            const RoleSwitcherPill(isExpanded: true),
+            const MotionCard(
+              index: 0,
+              enableHover: false,
+              child: RoleSwitcherPill(isExpanded: true),
+            ),
 
             const SizedBox(height: 14),
 
             // ==========================================
             // 1. RINGKASAN ATAS: STATUS TANGKI & ANTREAN OPERATOR
             // ==========================================
-            _buildOperatorSummaryCard(context, state, settings),
+            MotionCard(
+              index: 1,
+              child: _buildOperatorSummaryCard(context, state, settings),
+            ),
 
             const SizedBox(height: 14),
 
             // ==========================================
             // 2. KARTU KONTROL DISPENSER — SEDANG DILAYANI
             // ==========================================
-            _buildDispenserControlCard(context, serving),
+            MotionCard(
+              index: 2,
+              child: _buildDispenserControlCard(context, serving),
+            ),
 
             const SizedBox(height: 14),
 
             // ==========================================
             // 3. KARTU VERIFIKASI CEPAT TIKET / QR CODE & DETEKSI ANOMALI
             // ==========================================
-            _buildQuickVerificationCard(context, state),
+            MotionCard(
+              index: 3,
+              enableHover: false,
+              child: _buildQuickVerificationCard(context, state),
+            ),
 
             const SizedBox(height: 14),
 
             // ==========================================
             // 4. KARTU MANAJEMEN STOK TANGKI SPBN
             // ==========================================
-            _buildTankManagementCard(context, state),
+            MotionCard(
+              index: 4,
+              child: _buildTankManagementCard(context, state),
+            ),
 
             const SizedBox(height: 14),
 
             // ==========================================
             // 5. RIWAYAT PENGISIAN SELESAI HARI INI
             // ==========================================
-            _buildCompletedTransactionsCard(context, state),
+            MotionCard(
+              index: 5,
+              child: _buildCompletedTransactionsCard(context, state),
+            ),
 
             const SizedBox(height: 30),
           ],

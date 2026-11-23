@@ -5,6 +5,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/providers/navigation_provider.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/widgets/motion_card.dart';
 import '../../settings/providers/settings_provider.dart';
 import '../../siantri_solar/models/siantri_models.dart';
 import '../../siantri_solar/providers/siantri_provider.dart';
@@ -186,9 +187,15 @@ class DigitalPassScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (activeTicket != null)
-              _buildActiveTicketPass(context, ref, activeTicket, settings)
+              MotionCard(
+                index: 0,
+                child: _buildActiveTicketPass(context, ref, activeTicket, settings),
+              )
             else
-              _buildEmptyTicketState(context, ref),
+              MotionCard(
+                index: 0,
+                child: _buildEmptyTicketState(context, ref),
+              ),
 
             const SizedBox(height: 24),
           ],

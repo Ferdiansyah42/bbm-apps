@@ -5,6 +5,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/providers/navigation_provider.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/widgets/motion_card.dart';
 import '../../../core/widgets/role_switcher_pill.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../settings/models/spbn_settings.dart';
@@ -407,28 +408,41 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
             // ==========================================
             // RIBBON PENGALIH PERAN CEPAT (PROMINENT & LEGA)
             // ==========================================
-            const RoleSwitcherPill(isExpanded: true),
+            const MotionCard(
+              index: 0,
+              enableHover: false,
+              child: RoleSwitcherPill(isExpanded: true),
+            ),
 
             const SizedBox(height: 12),
 
             // ==========================================
             // 0. GREETING & STATUS DERMAGA PESISIR (HUMAN TOUCH)
             // ==========================================
-            _buildHarborGreetingBar(context),
+            MotionCard(
+              index: 1,
+              child: _buildHarborGreetingBar(context),
+            ),
 
             const SizedBox(height: 12),
 
             // ==========================================
             // 1. HEADER & STATUS BAR SPBN (STOK TANGKI)
             // ==========================================
-            _buildHeaderStatusBar(context, state, settings),
+            MotionCard(
+              index: 2,
+              child: _buildHeaderStatusBar(context, state, settings),
+            ),
 
             const SizedBox(height: 14),
 
             // ==========================================
             // 2. KARTU STATUS GEOFENCING (RADAR DERMAGA)
             // ==========================================
-            _buildGeofencingStatusCard(context, state, settings),
+            MotionCard(
+              index: 3,
+              child: _buildGeofencingStatusCard(context, state, settings),
+            ),
 
             const SizedBox(height: 14),
 
@@ -436,21 +450,31 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
             // BANNER PEMBERITAHUAN TIKET AKTIF (JIKA ADA)
             // ==========================================
             if (state.currentTicket != null) ...[
-              _buildActiveTicketNoticeBanner(context, state.currentTicket!),
+              MotionCard(
+                index: 4,
+                child: _buildActiveTicketNoticeBanner(context, state.currentTicket!),
+              ),
               const SizedBox(height: 14),
             ],
 
             // ==========================================
             // 3. MODUL FORM AMBIL NOMOR ANTREAN NELAYAN
             // ==========================================
-            _buildFishermanRegistrationForm(context, state, settings, isAllowed),
+            MotionCard(
+              index: 4,
+              enableHover: false,
+              child: _buildFishermanRegistrationForm(context, state, settings, isAllowed),
+            ),
 
             const SizedBox(height: 14),
 
             // ==========================================
             // 4. DAFTAR ANTREAN LIVE (FIFO)
             // ==========================================
-            _buildLiveQueueSection(context, state),
+            MotionCard(
+              index: 5,
+              child: _buildLiveQueueSection(context, state),
+            ),
 
             const SizedBox(height: 24),
           ],
@@ -1448,68 +1472,10 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                 return Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 3),
-                    child: InkWell(
+                    child: _HoverEngineCard(
+                      isSelected: isSelected,
+                      tier: tier,
                       onTap: () => _onEngineChanged(tier),
-                      borderRadius: BorderRadius.circular(14),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
-                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-                        decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFFEFF6FF) : const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: isSelected ? AppColors.primary : const Color(0xFFE2E8F0),
-                            width: isSelected ? 2.0 : 1.0,
-                          ),
-                          boxShadow: isSelected
-                              ? [
-                                  BoxShadow(
-                                    color: AppColors.primary.withValues(alpha: 0.15),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ]
-                              : null,
-                        ),
-                        child: Column(
-                          children: [
-                            Icon(
-                              tier.id == 'pk_30'
-                                  ? Icons.directions_boat_rounded
-                                  : Icons.sailing_rounded,
-                              size: 20,
-                              color: isSelected ? AppColors.primary : const Color(0xFF64748B),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              tier.name.replaceAll('Mesin ', ''),
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w900,
-                                color: isSelected ? AppColors.primary : AppColors.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: 1),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? const Color(0xFFDBEAFE)
-                                    : const Color(0xFFE2E8F0),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                '${tier.maxQuotaLiters.toInt()}L',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: isSelected ? const Color(0xFF1D4ED8) : const Color(0xFF64748B),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                   ),
                 );
@@ -2003,3 +1969,107 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
     );
   }
 }
+
+/// Card pilihan mesin kapal dengan animasi hover & micro-interaction
+class _HoverEngineCard extends StatefulWidget {
+  final bool isSelected;
+  final BoatEngineTier tier;
+  final VoidCallback onTap;
+
+  const _HoverEngineCard({
+    required this.isSelected,
+    required this.tier,
+    required this.onTap,
+  });
+
+  @override
+  State<_HoverEngineCard> createState() => _HoverEngineCardState();
+}
+
+class _HoverEngineCardState extends State<_HoverEngineCard> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: SystemMouseCursors.click,
+      child: InkWell(
+        onTap: widget.onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOutCubic,
+          transform: Matrix4.identity()
+            ..translate(0.0, _isHovered ? -3.0 : 0.0),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+          decoration: BoxDecoration(
+            color: widget.isSelected
+                ? const Color(0xFFEFF6FF)
+                : (_isHovered ? const Color(0xFFF1F5F9) : const Color(0xFFF8FAFC)),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: widget.isSelected
+                  ? AppColors.primary
+                  : (_isHovered ? const Color(0xFF93C5FD) : const Color(0xFFE2E8F0)),
+              width: widget.isSelected ? 2.0 : 1.0,
+            ),
+            boxShadow: widget.isSelected || _isHovered
+                ? [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(
+                        alpha: widget.isSelected ? 0.18 : 0.10,
+                      ),
+                      blurRadius: _isHovered ? 10 : 8,
+                      offset: Offset(0, _isHovered ? 4 : 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Column(
+            children: [
+              Icon(
+                widget.tier.id == 'pk_30'
+                    ? Icons.directions_boat_rounded
+                    : Icons.sailing_rounded,
+                size: 20,
+                color: widget.isSelected
+                    ? AppColors.primary
+                    : (_isHovered ? AppColors.primary : const Color(0xFF64748B)),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                widget.tier.name.replaceAll('Mesin ', ''),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  color: widget.isSelected ? AppColors.primary : AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 1),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                decoration: BoxDecoration(
+                  color: widget.isSelected
+                      ? const Color(0xFFDBEAFE)
+                      : const Color(0xFFE2E8F0),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  '${widget.tier.maxQuotaLiters.toInt()}L',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: widget.isSelected ? const Color(0xFF1D4ED8) : const Color(0xFF64748B),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
