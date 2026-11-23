@@ -81,19 +81,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // ==========================================
-            // BAGIAN ATAS: CURVED HEADER (DARK CYAN / TEAL GRADIENT)
+            // BAGIAN ATAS: CURVED HEADER (SOLID DEEP NAVY)
             // ==========================================
             Container(
               decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFF09203F),
-                    Color(0xFF0F3B57),
-                    Color(0xFF026D8E),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
+                color: Color(0xFF0F2B48),
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(42),
                   bottomRight: Radius.circular(42),
@@ -384,24 +376,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                     const SizedBox(height: 8),
 
-                    // 3. Tombol Utama Login (Pill Gradient Teal / Ocean)
+                    // 3. Tombol Utama Login (Pill Solid Navy)
                     Container(
                       height: 46,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF0F2B48),
-                            Color(0xFF0284C7),
-                          ],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
+                        color: const Color(0xFF0F2B48),
                         borderRadius: BorderRadius.circular(28),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF0284C7).withValues(alpha: 0.3),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
+                            color: const Color(0xFF0F2B48).withValues(alpha: 0.25),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
                           ),
                         ],
                       ),

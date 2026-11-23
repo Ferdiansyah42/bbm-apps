@@ -336,18 +336,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     Container(
                       height: 50,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF0F2B48), Color(0xFF0284C7)],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
+                        color: const Color(0xFF0F2B48),
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF0284C7)
-                                .withValues(alpha: 0.35),
-                            blurRadius: 14,
-                            offset: const Offset(0, 5),
+                            color: const Color(0xFF0F2B48).withValues(alpha: 0.25),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
                           ),
                         ],
                       ),
@@ -434,15 +429,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             ),
 
             // ==========================================
-            // BAGIAN BAWAH: CURVED FOOTER (BRIGHT TEAL / CYAN GRADIENT)
+            // BAGIAN BAWAH: CURVED FOOTER (SOLID OCEAN BLUE)
             // ==========================================
             Container(
               decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF0284C7), Color(0xFF06B6D4)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
+                color: Color(0xFF0284C7),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(52),
                   topRight: Radius.circular(52),

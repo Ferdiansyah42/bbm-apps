@@ -590,11 +590,7 @@ class _OperatorPanelScreenState extends ConsumerState<OperatorPanelScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF0D9488), Color(0xFF0F766E)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: const Color(0xFF0F766E),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Row(

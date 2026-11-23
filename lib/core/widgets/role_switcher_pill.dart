@@ -51,15 +51,14 @@ class RoleSwitcherPill extends ConsumerWidget {
                   vertical: isExpanded ? 9 : 5,
                 ),
                 decoration: BoxDecoration(
-                  gradient: !isOperator ? AppColors.gradientOcean : null,
-                  color: !isOperator ? null : Colors.transparent,
+                  color: !isOperator ? AppColors.primary : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: !isOperator
                       ? [
                           BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
+                            color: AppColors.primary.withValues(alpha: 0.25),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
                           ),
                         ]
                       : null,
@@ -111,21 +110,14 @@ class RoleSwitcherPill extends ConsumerWidget {
                   vertical: isExpanded ? 9 : 5,
                 ),
                 decoration: BoxDecoration(
-                  gradient: isOperator
-                      ? const LinearGradient(
-                          colors: [Color(0xFFD97706), Color(0xFFB45309)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        )
-                      : null,
-                  color: isOperator ? null : Colors.transparent,
+                  color: isOperator ? const Color(0xFFD97706) : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: isOperator
                       ? [
                           BoxShadow(
-                            color: const Color(0xFFD97706).withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
+                            color: const Color(0xFFD97706).withValues(alpha: 0.25),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
                           ),
                         ]
                       : null,

@@ -154,12 +154,12 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  gradient: AppColors.gradientOcean,
+                  color: const Color(0xFF0F2B48),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
-                      blurRadius: 10,
+                      color: const Color(0xFF0F2B48).withValues(alpha: 0.25),
+                      blurRadius: 8,
                       offset: const Offset(0, 3),
                     ),
                   ],
@@ -275,16 +275,12 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF0284C7), Color(0xFF0F2B48)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: const Color(0xFF0284C7),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF0284C7).withValues(alpha: 0.3),
-                    blurRadius: 8,
+                    color: const Color(0xFF0284C7).withValues(alpha: 0.25),
+                    blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
                 ],
@@ -528,11 +524,7 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
           Container(
             padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF0284C7), Color(0xFF0369A1)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: const Color(0xFF0284C7),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.waves_rounded, color: Colors.white, size: 20),
@@ -622,37 +614,21 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        gradient: AppColors.gradientOcean,
+        color: const Color(0xFF0F2B48),
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F2B48).withValues(alpha: 0.3),
-            blurRadius: 18,
-            offset: const Offset(0, 6),
+            color: const Color(0xFF0F2B48).withValues(alpha: 0.2),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Stack(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Background Decorative Ocean Ring
-          Positioned(
-            right: -25,
-            top: -25,
-            child: Container(
-              width: 140,
-              height: 140,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.04),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Nama SPBN & Badge Ketersediaan
+          // Nama SPBN & Badge Ketersediaan
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -934,9 +910,6 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                 ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -1314,17 +1287,13 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
             // ==========================================
             Container(
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF0F2B48), Color(0xFF1E3A8A)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: const Color(0xFF0F2B48),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF0F2B48).withValues(alpha: 0.18),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+                    color: const Color(0xFF0F2B48).withValues(alpha: 0.15),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
