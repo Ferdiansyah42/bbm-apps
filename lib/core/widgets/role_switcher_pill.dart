@@ -70,17 +70,21 @@ class RoleSwitcherPill extends ConsumerWidget {
                   children: [
                     Icon(
                       Icons.directions_boat_rounded,
-                      size: isExpanded ? 17 : 14,
+                      size: isExpanded ? 16 : 14,
                       color: !isOperator ? Colors.white : const Color(0xFF64748B),
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      isExpanded ? 'Mode Nelayan' : 'Nelayan',
-                      style: TextStyle(
-                        fontSize: isExpanded ? 12.5 : 11,
-                        fontWeight: FontWeight.bold,
-                        color: !isOperator ? Colors.white : const Color(0xFF475569),
-                        letterSpacing: 0.2,
+                    const SizedBox(width: 5),
+                    Flexible(
+                      child: Text(
+                        isExpanded ? 'Mode Nelayan' : 'Nelayan',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: isExpanded ? 12 : 11,
+                          fontWeight: FontWeight.bold,
+                          color: !isOperator ? Colors.white : const Color(0xFF475569),
+                          letterSpacing: 0.1,
+                        ),
                       ),
                     ),
                   ],
@@ -132,17 +136,21 @@ class RoleSwitcherPill extends ConsumerWidget {
                   children: [
                     Icon(
                       Icons.local_gas_station_rounded,
-                      size: isExpanded ? 17 : 14,
+                      size: isExpanded ? 16 : 14,
                       color: isOperator ? Colors.white : const Color(0xFF64748B),
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      isExpanded ? 'Mode Operator SPBN' : 'Operator SPBN',
-                      style: TextStyle(
-                        fontSize: isExpanded ? 12.5 : 11,
-                        fontWeight: FontWeight.bold,
-                        color: isOperator ? Colors.white : const Color(0xFF475569),
-                        letterSpacing: 0.2,
+                    const SizedBox(width: 5),
+                    Flexible(
+                      child: Text(
+                        isExpanded ? 'Operator SPBN' : 'Operator SPBN',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: isExpanded ? 12 : 11,
+                          fontWeight: FontWeight.bold,
+                          color: isOperator ? Colors.white : const Color(0xFF475569),
+                          letterSpacing: 0.1,
+                        ),
                       ),
                     ),
                   ],

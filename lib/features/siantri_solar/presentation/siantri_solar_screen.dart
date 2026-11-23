@@ -302,13 +302,17 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                 children: [
                   Row(
                     children: [
-                      const Text(
-                        'SiAntri Solar Nelayan',
-                        style: TextStyle(
-                          fontSize: 16.5,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.primary,
-                          letterSpacing: 0.2,
+                      const Flexible(
+                        child: Text(
+                          'SiAntri Solar Nelayan',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.primary,
+                            letterSpacing: 0.2,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -725,49 +729,60 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Row(
-                          children: [
-                            Icon(Icons.opacity_rounded, size: 13, color: Color(0xFF38BDF8)),
-                            SizedBox(width: 4),
-                            Text(
-                              'Sisa Stok Tangki SPBN',
-                              style: TextStyle(
-                                color: Color(0xFF94A3B8),
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 3),
-                        RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: '${AppFormatters.formatNumber(state.tankStockLiters)} L ',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                              TextSpan(
-                                text: '/ ${AppFormatters.formatNumber(state.tankCapacityLiters)} L',
-                                style: const TextStyle(
-                                  color: Color(0xFF94A3B8),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.normal,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: const [
+                              Icon(Icons.opacity_rounded, size: 13, color: Color(0xFF38BDF8)),
+                              SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  'Sisa Stok Tangki SPBN',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: Color(0xFF94A3B8),
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 3),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: '${AppFormatters.formatNumber(state.tankStockLiters)} L ',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: '/ ${AppFormatters.formatNumber(state.tankCapacityLiters)} L',
+                                    style: const TextStyle(
+                                      color: Color(0xFF94A3B8),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
@@ -822,7 +837,7 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                   children: [
                     Expanded(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 12),
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(12),
@@ -836,20 +851,32 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                                 color: const Color(0xFF38BDF8).withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Icon(Icons.groups_rounded, color: Color(0xFF93C5FD), size: 18),
+                              child: const Icon(Icons.groups_rounded, color: Color(0xFF93C5FD), size: 17),
                             ),
-                            const SizedBox(width: 9),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Antrean Aktif',
-                                    style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 10.5)),
-                                Text('${state.activeQueueCount} Kapal',
+                            const SizedBox(width: 7),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    'Antrean Aktif',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 10),
+                                  ),
+                                  Text(
+                                    '${state.activeQueueCount} Kapal',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 13.5)),
-                              ],
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -858,7 +885,7 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 12),
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(12),
@@ -872,20 +899,32 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                                 color: const Color(0xFFFDE047).withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Icon(Icons.schedule_rounded, color: Color(0xFFFDE047), size: 18),
+                              child: const Icon(Icons.schedule_rounded, color: Color(0xFFFDE047), size: 17),
                             ),
-                            const SizedBox(width: 9),
-                            const Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Est. Layanan',
-                                    style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 10.5)),
-                                Text('~8 Menit / Kapal',
+                            const SizedBox(width: 7),
+                            const Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Est. Layanan',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 10),
+                                  ),
+                                  Text(
+                                    '~8 Mnt / Kapal',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 13.5)),
-                              ],
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -1296,23 +1335,30 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.badge_rounded, color: Color(0xFF93C5FD), size: 16),
-                          SizedBox(width: 6),
-                          Text(
-                            'KARTU NELAYAN DKP JAWA TIMUR',
-                            style: TextStyle(
-                              color: Color(0xFF93C5FD),
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.8,
+                      const Expanded(
+                        child: Row(
+                          children: [
+                            Icon(Icons.badge_rounded, color: Color(0xFF93C5FD), size: 16),
+                            SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                'KARTU NELAYAN DKP JAWA TIMUR',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Color(0xFF93C5FD),
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
                         decoration: BoxDecoration(
                           color: const Color(0xFF10B981).withValues(alpha: 0.25),
                           borderRadius: BorderRadius.circular(6),
@@ -1444,17 +1490,22 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
             // ==========================================
             // BAGIAN 2: PILIHAN SPESIFIKASI MESIN KAPAL (TACTILE CARDS)
             // ==========================================
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Pilih Kapasitas Mesin Kapal:',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+              children: const [
+                Flexible(
+                  child: Text(
+                    'Pilih Kapasitas Mesin Kapal:',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                 ),
+                SizedBox(width: 8),
                 Text(
                   'Standar DKP Jatim',
                   style: TextStyle(
@@ -1486,6 +1537,7 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
 
             // Dropdown Kapasitas Mesin Kapal & Kuota Maksimal (Tersinkronisasi)
             DropdownButtonFormField<BoatEngineTier>(
+              isExpanded: true,
               key: ValueKey(_selectedEngine.id),
               initialValue: _selectedEngine,
               decoration: const InputDecoration(
@@ -1499,6 +1551,8 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                   child: Text(
                     tier.label,
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 );
               }).toList(),
@@ -1523,14 +1577,19 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Volume Permintaan Solar:',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                      const Expanded(
+                        child: Text(
+                          'Volume Permintaan Solar:',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
@@ -1602,70 +1661,84 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                   ),
                   const SizedBox(height: 10),
                   // Pilihan Cepat & Tombol Isi Maksimal
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Pilihan Cepat:',
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Wrap(
-                          spacing: 6,
-                          children: [
-                            ...[15.0, 30.0, 45.0, 60.0]
-                                .where((l) => l <= _selectedEngine.maxQuotaLiters)
-                                .map((l) {
-                              return InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    _litersController.text = l.toInt().toString();
-                                  });
-                                },
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Flexible(
+                            child: Text(
+                              'Pilihan Cepat:',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                color: AppColors.textSecondary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          InkWell(
+                            onTap: _fillMaxLiters,
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE0F2FE),
                                 borderRadius: BorderRadius.circular(8),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: const Color(0xFFCBD5E1)),
+                                border: Border.all(color: const Color(0xFFBAE6FD)),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.flash_on_rounded, size: 14, color: Color(0xFF0369A1)),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Isi Maksimal',
+                                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0369A1)),
                                   ),
-                                  child: Text(
-                                    '${l.toInt()}L',
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.primary,
-                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          ...[15.0, 30.0, 45.0, 60.0]
+                              .where((l) => l <= _selectedEngine.maxQuotaLiters)
+                              .map((l) {
+                            return InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _litersController.text = l.toInt().toString();
+                                });
+                              },
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: const Color(0xFFCBD5E1)),
+                                ),
+                                child: Text(
+                                  '${l.toInt()}L',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.primary,
                                   ),
                                 ),
-                              );
-                            }),
-                          ],
-                        ),
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: _fillMaxLiters,
-                        icon: const Icon(Icons.flash_on_rounded, size: 15),
-                        label: const Text(
-                          'Isi Maksimal',
-                          style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFE0F2FE),
-                          foregroundColor: const Color(0xFF0369A1),
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          visualDensity: VisualDensity.compact,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side: const BorderSide(color: Color(0xFFBAE6FD)),
-                          ),
-                        ),
+                              ),
+                            );
+                          }),
+                        ],
                       ),
                     ],
                   ),
@@ -1681,23 +1754,28 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Estimasi Biaya Subsidi:',
-                              style: TextStyle(fontSize: 10.5, color: Color(0xFF166534)),
-                            ),
-                            Text(
-                              'Rp ${AppFormatters.formatNumber(totalSubsidized.toDouble())} (Rp 6.800/L)',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w900,
-                                color: Color(0xFF15803D),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Estimasi Biaya Subsidi:',
+                                style: TextStyle(fontSize: 10.5, color: Color(0xFF166534)),
                               ),
-                            ),
-                          ],
+                              Text(
+                                'Rp ${AppFormatters.formatNumber(totalSubsidized.toDouble())} (Rp 6.800/L)',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w900,
+                                  color: Color(0xFF15803D),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                        const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
@@ -1796,27 +1874,34 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(7),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryContainer,
-                      borderRadius: BorderRadius.circular(10),
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(7),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryContainer,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.format_list_numbered_rounded, color: AppColors.primary, size: 19),
                     ),
-                    child: const Icon(Icons.format_list_numbered_rounded, color: AppColors.primary, size: 19),
-                  ),
-                  const SizedBox(width: 10),
-                  const Text(
-                    'Daftar Antrean Live (FIFO)',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.textPrimary,
+                    const SizedBox(width: 10),
+                    const Expanded(
+                      child: Text(
+                        'Daftar Antrean Live (FIFO)',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
                 decoration: BoxDecoration(
@@ -1900,18 +1985,22 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                         const SizedBox(height: 2),
                         Row(
                           children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFEFF6FF),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                queue.engineName,
-                                style: const TextStyle(
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF1D4ED8),
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEFF6FF),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  queue.engineName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF1D4ED8),
+                                  ),
                                 ),
                               ),
                             ),
@@ -1929,6 +2018,8 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
                         const SizedBox(height: 2),
                         Text(
                           queue.recommendationNumber,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 10.5,
                             color: AppColors.textMuted,

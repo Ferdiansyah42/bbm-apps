@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:antrian_solar/core/providers/navigation_provider.dart';
@@ -5,6 +6,7 @@ import 'package:antrian_solar/core/utils/formatters.dart';
 import 'package:antrian_solar/features/settings/models/spbn_settings.dart';
 import 'package:antrian_solar/features/settings/providers/settings_provider.dart';
 import 'package:antrian_solar/features/siantri_solar/models/siantri_models.dart';
+import 'package:antrian_solar/features/siantri_solar/presentation/siantri_solar_screen.dart';
 import 'package:antrian_solar/features/siantri_solar/providers/siantri_provider.dart';
 
 void main() {
@@ -266,6 +268,31 @@ void main() {
       container.read(activeTicketProvider.notifier).clearTicket();
       expect(container.read(activeTicketProvider), isNull);
       expect(container.read(siAntriProvider).currentTicket, isNull);
+    });
+  });
+
+  group('SiAntriSolarScreen Mobile Responsive Layout Tests', () {
+    testWidgets('renders on narrow mobile screen (360x800) without any RenderFlex overflow', (tester) async {
+      tester.view.physicalSize = const Size(360, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(
+        const ProviderScope(
+          child: MaterialApp(
+            home: SiAntriSolarScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SiAntriSolarScreen), findsOneWidget);
+      expect(find.text('SiAntri Solar Nelayan'), findsOneWidget);
+      expect(find.text('Terverifikasi DKP'), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
   });
 }
