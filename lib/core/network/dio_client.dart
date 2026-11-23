@@ -64,7 +64,7 @@ class DioClient {
   Dio get dio => _dio;
   FlutterSecureStorage get secureStorage => _secureStorage;
 
-  /// Interceptor untuk menyisipkan header Authorization: Bearer <token>
+  /// Interceptor untuk menyisipkan header `Authorization: Bearer <token>`
   Interceptor _createAuthInterceptor() {
     return QueuedInterceptorsWrapper(
       onRequest: (options, handler) async {

@@ -6,7 +6,6 @@ class AppFormatters {
 
   static final DateFormat _dateFormat = DateFormat('dd MMM yyyy', 'id_ID');
   static final DateFormat _dateTimeFormat = DateFormat('dd MMM yyyy, HH:mm', 'id_ID');
-  static final DateFormat _timeFormat = DateFormat('HH:mm', 'id_ID');
   static final NumberFormat _numberFormat = NumberFormat('#,##0.0', 'id_ID');
   static final NumberFormat _integerFormat = NumberFormat('#,##0', 'id_ID');
 

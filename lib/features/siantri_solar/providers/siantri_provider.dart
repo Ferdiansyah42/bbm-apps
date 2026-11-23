@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../settings/models/spbn_settings.dart';
-import '../../settings/providers/settings_provider.dart';
 import '../models/siantri_models.dart';
 
 class SiAntriState {

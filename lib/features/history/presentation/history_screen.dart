@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../core/constants/app_colors.dart';
 import '../../../core/models/models.dart';
 import '../../../core/repositories/mock_spbn_repository.dart';
@@ -32,9 +33,7 @@ class HistoryScreen extends ConsumerWidget {
         },
         child: transactionsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, _) => Center(
-            child: Text('Gagal memuat riwayat: $err'),
-          ),
+          error: (err, _) => Center(child: Text('Gagal memuat riwayat: $err')),
           data: (transactions) {
             if (transactions.isEmpty) {
               return const Center(
@@ -43,9 +42,12 @@ class HistoryScreen extends ConsumerWidget {
             }
 
             return ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 12.0,
+              ),
               itemCount: transactions.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final tx = transactions[index];
                 return _buildTransactionCard(context, tx);
@@ -65,7 +67,9 @@ class HistoryScreen extends ConsumerWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
         side: BorderSide(
-          color: isAnomaly ? AppColors.danger.withValues(alpha: 0.5) : AppColors.border,
+          color: isAnomaly
+              ? AppColors.danger.withValues(alpha: 0.5)
+              : AppColors.border,
           width: isAnomaly ? 1.4 : 1.0,
         ),
       ),
@@ -84,11 +88,15 @@ class HistoryScreen extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: isAnomaly ? AppColors.dangerContainer : AppColors.primaryContainer,
+                        color: isAnomaly
+                            ? AppColors.dangerContainer
+                            : AppColors.primaryContainer,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
-                        isAnomaly ? Icons.warning_amber_rounded : Icons.local_gas_station_rounded,
+                        isAnomaly
+                            ? Icons.warning_amber_rounded
+                            : Icons.local_gas_station_rounded,
                         size: 18,
                         color: isAnomaly ? AppColors.danger : AppColors.primary,
                       ),
@@ -107,16 +115,24 @@ class HistoryScreen extends ConsumerWidget {
                         ),
                         Text(
                           AppFormatters.formatDateTime(tx.createdAt),
-                          style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                       ],
                     ),
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: isAnomaly ? AppColors.dangerContainer : AppColors.successContainer,
+                    color: isAnomaly
+                        ? AppColors.dangerContainer
+                        : AppColors.successContainer,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -142,7 +158,10 @@ class HistoryScreen extends ConsumerWidget {
               children: [
                 const Text(
                   'Volume Solar Bersubsidi',
-                  style: TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 Text(
                   '+ ${AppFormatters.formatLiters(tx.volumeLiters)}',
@@ -164,14 +183,20 @@ class HistoryScreen extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: AppColors.dangerContainer.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.danger.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: AppColors.danger.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.psychology_alt_rounded, size: 16, color: AppColors.danger),
+                        const Icon(
+                          Icons.psychology_alt_rounded,
+                          size: 16,
+                          color: AppColors.danger,
+                        ),
                         const SizedBox(width: 6),
                         Text(
                           'Catatan Audit AI (Skor Anomali: ${((tx.anomalyScore ?? 0.86) * 100).toStringAsFixed(0)}%):',
@@ -190,11 +215,20 @@ class HistoryScreen extends ConsumerWidget {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('• ', style: TextStyle(color: AppColors.danger, fontWeight: FontWeight.bold)),
+                            const Text(
+                              '• ',
+                              style: TextStyle(
+                                color: AppColors.danger,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             Expanded(
                               child: Text(
                                 reason,
-                                style: const TextStyle(fontSize: 11, color: Color(0xFF7F1D1D)),
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Color(0xFF7F1D1D),
+                                ),
                               ),
                             ),
                           ],

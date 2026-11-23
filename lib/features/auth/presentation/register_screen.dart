@@ -264,7 +264,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                         // 5. Dropdown Kapasitas Mesin Kapal & Kuota Maksimal
                         DropdownButtonFormField<BoatEngineTier>(
-                          value: _selectedEngine,
+                          initialValue: _selectedEngine,
                           decoration: const InputDecoration(
                             labelText: 'Kapasitas Mesin Kapal & Kuota',
                             prefixIcon: Icon(Icons.directions_boat_outlined),

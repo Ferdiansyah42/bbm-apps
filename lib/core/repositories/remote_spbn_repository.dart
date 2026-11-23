@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../network/dio_client.dart';
@@ -7,24 +6,24 @@ import 'spbn_repository.dart';
 /// Implementasi SpbnRepository yang terhubung ke Backend Laravel REST API sungguhan.
 /// Sesuai kontrak API pada Blueprint TA Bab 6 & Tabel 3.
 class RemoteSpbnRepository implements SpbnRepository {
-  final DioClient _dioClient;
+  final DioClient dioClient;
 
   // Cache dashboard response untuk efisiensi koneksi pesisir
   Map<String, dynamic>? _cachedDashboardData;
   DateTime? _lastDashboardFetchTime;
 
-  RemoteSpbnRepository({required DioClient dioClient}) : _dioClient = dioClient;
+  RemoteSpbnRepository({required this.dioClient});
 
   /// 1. POST /api/v1/auth/login
   /// Autentikasi NIK / No. HP dan registrasi fcm_token perangkat (Public)
   @override
   Future<FishermanUser> login(String identifier, {String? fcmToken}) async {
-    final response = await _dioClient.post(
+    final response = await dioClient.post(
       '/auth/login',
       data: {
         'nik': identifier,
         'identifier': identifier,
-        if (fcmToken != null) 'fcm_token': fcmToken,
+        'fcm_token': ?fcmToken,
       },
     );
 
@@ -36,7 +35,7 @@ class RemoteSpbnRepository implements SpbnRepository {
           data['data']?['token'] as String?;
 
       if (token != null && token.isNotEmpty) {
-        await _dioClient.saveAuthToken(token);
+        await dioClient.saveAuthToken(token);
       }
 
       final userData = data['user'] ?? data['data']?['user'] ?? data['data'];
@@ -51,9 +50,9 @@ class RemoteSpbnRepository implements SpbnRepository {
   @override
   Future<void> logout() async {
     try {
-      await _dioClient.post('/auth/logout');
+      await dioClient.post('/auth/logout');
     } catch (_) {}
-    await _dioClient.clearAuthToken();
+    await dioClient.clearAuthToken();
     _cachedDashboardData = null;
   }
 
@@ -61,7 +60,7 @@ class RemoteSpbnRepository implements SpbnRepository {
   /// Mengambil koordinat SPBN, radius geofence, stok solar, dan jumlah antrean (Sanctum)
   @override
   Future<SpbnStation> getSpbnStation() async {
-    final response = await _dioClient.get('/spbn/status');
+    final response = await dioClient.get('/spbn/status');
     final data = response.data;
 
     final stationJson = _extractDataMap(data);
@@ -79,7 +78,7 @@ class RemoteSpbnRepository implements SpbnRepository {
       return _cachedDashboardData!;
     }
 
-    final response = await _dioClient.get('/fisherman/dashboard');
+    final response = await dioClient.get('/fisherman/dashboard');
     final data = _extractDataMap(response.data);
 
     _cachedDashboardData = data;
@@ -136,7 +135,7 @@ class RemoteSpbnRepository implements SpbnRepository {
     required bool isMocked,
     required double accuracy,
   }) async {
-    final response = await _dioClient.post(
+    final response = await dioClient.post(
       '/queues/take',
       data: {
         'lat_checkin': userLat,
@@ -155,7 +154,7 @@ class RemoteSpbnRepository implements SpbnRepository {
   /// Mengambil riwayat transaksi pengisian solar nelayan (Sanctum)
   @override
   Future<List<TransactionHistory>> getTransactionHistories() async {
-    final response = await _dioClient.get('/transactions/history');
+    final response = await dioClient.get('/transactions/history');
     final data = response.data;
 
     List<dynamic> items = [];
@@ -177,7 +176,7 @@ class RemoteSpbnRepository implements SpbnRepository {
   /// Pembatalan tiket antrean aktif
   @override
   Future<void> cancelQueue(int queueId) async {
-    await _dioClient.delete('/queues/$queueId');
+    await dioClient.delete('/queues/$queueId');
     _cachedDashboardData = null;
   }
 

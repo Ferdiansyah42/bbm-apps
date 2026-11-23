@@ -120,7 +120,7 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
           children: [
             if (hasActiveQueue)
               // KARTU TIKET ANTREAN AKTIF
-              _buildActiveTicketCard(context, activeTicket!)
+              _buildActiveTicketCard(context, activeTicket)
             else
               // TAMPILAN BELUM MENGAMBIL ANTREAN
               _buildNoTicketCard(context, geofence, canTakeQueue, isQuotaAvailable),

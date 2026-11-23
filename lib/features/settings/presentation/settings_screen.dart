@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_constants.dart';
 import '../providers/settings_provider.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -193,7 +191,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       Switch(
                         value: settings.isGeofenceEnabled,
-                        activeColor: AppColors.primary,
+                        activeThumbColor: AppColors.primary,
                         onChanged: (value) {
                           ref.read(settingsProvider.notifier).setGeofenceEnabled(value);
                         },

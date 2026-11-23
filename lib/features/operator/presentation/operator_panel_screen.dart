@@ -1067,7 +1067,7 @@ class _OperatorPanelScreenState extends ConsumerState<OperatorPanelScreen> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: state.completedTransactions.length,
-              separatorBuilder: (_, __) => const Divider(height: 14),
+              separatorBuilder: (_, _) => const Divider(height: 14),
               itemBuilder: (context, index) {
                 final tx = state.completedTransactions[index];
                 return Row(

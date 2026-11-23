@@ -58,11 +58,18 @@ class _MotionCardState extends State<MotionCard> {
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOutCubic,
             transform: Matrix4.identity()
-              ..translate(
+              ..translateByDouble(
                 0.0,
                 _isPressed ? 1.0 : (_isHovered ? widget.hoverOffsetY : 0.0),
+                0.0,
+                1.0,
               )
-              ..scale(_isPressed ? 0.985 : 1.0),
+              ..scaleByDouble(
+                _isPressed ? 0.985 : 1.0,
+                _isPressed ? 0.985 : 1.0,
+                1.0,
+                1.0,
+              ),
             child: widget.child,
           ),
         ),

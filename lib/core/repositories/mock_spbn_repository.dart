@@ -67,7 +67,7 @@ class MockSpbnRepository implements SpbnRepository {
   );
 
   // Simulasi kapal nelayan: KM Mina Jaya 15 PK
-  Ship _mockShip = const Ship(
+  final Ship _mockShip = const Ship(
     id: 1,
     userId: 1,
     shipName: 'KM Mina Jaya',

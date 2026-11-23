@@ -1486,7 +1486,8 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
 
             // Dropdown Kapasitas Mesin Kapal & Kuota Maksimal (Tersinkronisasi)
             DropdownButtonFormField<BoatEngineTier>(
-              value: _selectedEngine,
+              key: ValueKey(_selectedEngine.id),
+              initialValue: _selectedEngine,
               decoration: const InputDecoration(
                 labelText: 'Kapasitas Mesin Kapal & Kuota',
                 prefixIcon: Icon(Icons.directions_boat_outlined, color: AppColors.primary),
@@ -1838,7 +1839,7 @@ class _SiAntriSolarScreenState extends ConsumerState<SiAntriSolarScreen> {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: state.liveQueues.length,
-            separatorBuilder: (_, __) => const Divider(height: 16),
+            separatorBuilder: (_, _) => const Divider(height: 16),
             itemBuilder: (context, index) {
               final queue = state.liveQueues[index];
               final isServing = queue.isServing;
@@ -2002,7 +2003,7 @@ class _HoverEngineCardState extends State<_HoverEngineCard> {
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOutCubic,
           transform: Matrix4.identity()
-            ..translate(0.0, _isHovered ? -3.0 : 0.0),
+            ..translateByDouble(0.0, _isHovered ? -3.0 : 0.0, 0.0, 1.0),
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
           decoration: BoxDecoration(
             color: widget.isSelected
