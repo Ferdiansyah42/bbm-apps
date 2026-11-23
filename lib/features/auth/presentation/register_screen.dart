@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../core/constants/app_colors.dart';
 import '../../siantri_solar/models/siantri_models.dart';
 import '../models/user_account.dart';
@@ -18,13 +18,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _namaController = TextEditingController();
   final _emailController = TextEditingController();
   final _noHpController = TextEditingController();
-  final _rekomendasiController = TextEditingController(text: 'REK-DKP-2026-099');
+  final _rekomendasiController = TextEditingController(
+    text: 'REK-DKP-2026-099',
+  );
   final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
 
   BoatEngineTier _selectedEngine = kBoatEngineTiers[1]; // Default 15 PK (45 L)
   bool _obscurePassword = true;
-  bool _obscureConfirm = true;
 
   @override
   void dispose() {
@@ -33,7 +33,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     _noHpController.dispose();
     _rekomendasiController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -57,7 +56,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       kapasitasMesin: _selectedEngine.label,
     );
 
-    final success = await ref.read(authNotifierProvider.notifier).register(newAccount);
+    final success = await ref
+        .read(authNotifierProvider.notifier)
+        .register(newAccount);
 
     if (!mounted) return;
 
@@ -69,12 +70,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-      // Kembali jika dipush dari login
       if (Navigator.canPop(context)) {
         Navigator.pop(context);
       }
     } else {
-      final error = ref.read(authNotifierProvider).errorMessage ?? 'Pendaftaran gagal';
+      final error =
+          ref.read(authNotifierProvider).errorMessage ?? 'Pendaftaran gagal';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(error),
@@ -90,318 +91,511 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final authState = ref.watch(authNotifierProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Daftar Akun Nelayan'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Header
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryContainer.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ==========================================
+            // BAGIAN ATAS: FORM REGISTRASI
+            // ==========================================
+            Padding(
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + 24,
+                left: 26.0,
+                right: 26.0,
+                bottom: 24.0,
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Title Registration
+                    const Center(
+                      child: Text(
+                        'Registration',
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF0F2B48),
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    const Center(
+                      child: Text(
+                        'Daftar Akun Nelayan',
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // 1. Input Nama Lengkap Nelayan
+                    _buildCapsuleInput(
+                      controller: _namaController,
+                      hintText: "Contoh: Moh. Syafi'i",
+                      labelText: 'Nama Lengkap Nelayan',
+                      icon: Icons.person_rounded,
+                      validator: (val) {
+                        if (val == null || val.trim().isEmpty) {
+                          return 'Nama lengkap nelayan wajib diisi';
+                        }
+                        return null;
+                      },
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // 2. Input Alamat Email / Gmail
+                    _buildCapsuleInput(
+                      controller: _emailController,
+                      hintText: 'syafii.nelayan@gmail.com',
+                      labelText: 'Alamat Email / Gmail',
+                      icon: Icons.mail_rounded,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (val) {
+                        if (val == null || val.trim().isEmpty) {
+                          return 'Alamat Email / Gmail wajib diisi';
+                        }
+                        if (!val.contains('@')) {
+                          return 'Format email harus valid (mengandung @)';
+                        }
+                        return null;
+                      },
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // 3. Input Nomor Handphone / WhatsApp
+                    _buildCapsuleInput(
+                      controller: _noHpController,
+                      hintText: 'Contoh: 081234567890',
+                      labelText: 'Nomor Handphone / WhatsApp',
+                      icon: Icons.phone_rounded,
+                      keyboardType: TextInputType.phone,
+                      validator: (val) {
+                        if (val == null || val.trim().isEmpty) {
+                          return 'Nomor Handphone / WhatsApp wajib diisi';
+                        }
+                        return null;
+                      },
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // 4. Input Nomor Surat Rekomendasi DKP
+                    _buildCapsuleInput(
+                      controller: _rekomendasiController,
+                      hintText: 'REK-DKP-2026-099',
+                      labelText: 'Nomor Surat Rekomendasi DKP',
+                      icon: Icons.assignment_rounded,
+                      textCapitalization: TextCapitalization.characters,
+                      suffixAction: IconButton(
+                        icon: const Icon(
+                          Icons.auto_fix_high_rounded,
                           color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(12),
+                          size: 20,
                         ),
-                        child: const Icon(
-                          Icons.app_registration_rounded,
-                          color: Colors.white,
-                          size: 24,
-                        ),
+                        tooltip: 'Gunakan nomor rekomendasi otomatis',
+                        onPressed: () {
+                          _rekomendasiController.text = 'REK-DKP-2026-099';
+                        },
                       ),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Registrasi Nelayan SPBN',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
+                      validator: (val) {
+                        if (val == null || val.trim().isEmpty) {
+                          return 'Nomor surat rekomendasi DKP wajib diisi';
+                        }
+                        return null;
+                      },
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // 5. Dropdown Kapasitas Mesin Kapal & Kuota
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: DropdownButtonFormField<BoatEngineTier>(
+                        key: ValueKey(_selectedEngine.id),
+                        initialValue: _selectedEngine,
+                        decoration: const InputDecoration(
+                          labelText: 'Kapasitas Mesin Kapal & Kuota',
+                          labelStyle: TextStyle(
+                            color: Color(0xFF64748B),
+                            fontSize: 12.5,
+                          ),
+                          filled: false,
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          prefixIcon: Icon(
+                            Icons.directions_boat_rounded,
+                            color: Color(0xFF334155),
+                            size: 22,
+                          ),
+                        ),
+                        items: kBoatEngineTiers.map((tier) {
+                          return DropdownMenuItem<BoatEngineTier>(
+                            value: tier,
+                            child: Text(
+                              tier.label,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                            SizedBox(height: 2),
-                            Text(
-                              'Daftarkan identitas kapal & surat rekomendasi DKP untuk verifikasi kuota solar subsidi.',
-                              style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                          );
+                        }).toList(),
+                        onChanged: (tier) {
+                          if (tier != null) {
+                            setState(() => _selectedEngine = tier);
+                          }
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // 6. Input Password
+                    Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: TextFormField(
+                        controller: _passwordController,
+                        obscureText: _obscurePassword,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: Color(0xFF0F2B48),
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'Password',
+                          labelText: 'Kata Sandi / Password',
+                          hintStyle: const TextStyle(
+                            color: Color(0xFF94A3B8),
+                            fontSize: 13.5,
+                          ),
+                          labelStyle: const TextStyle(
+                            color: Color(0xFF64748B),
+                            fontSize: 12.5,
+                          ),
+                          filled: false,
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 14,
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.lock_rounded
+                                  : Icons.lock_open_rounded,
+                              color: const Color(0xFF334155),
+                              size: 22,
                             ),
-                          ],
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
+                        ),
+                        validator: (val) {
+                          if (val == null || val.trim().isEmpty) {
+                            return 'Password wajib diisi';
+                          }
+                          if (val.length < 6) {
+                            return 'Password minimal 6 karakter';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // 7. Tombol Utama Register
+                    Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF0F2B48), Color(0xFF0284C7)],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF0284C7)
+                                .withValues(alpha: 0.35),
+                            blurRadius: 14,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        onPressed: authState.isLoading ? null : _handleRegister,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: Text(
+                          authState.isLoading
+                              ? 'Mendaftarkan...'
+                              : 'Daftar & Masuk',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 15.5,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
+                          ),
                         ),
                       ),
-                    ],
-                  ),
-                ),
+                    ),
 
-                const SizedBox(height: 20),
+                    const SizedBox(height: 18),
 
-                // Form Card
-                Card(
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    side: const BorderSide(color: AppColors.border),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    // or register with social platforms
+                    const Center(
+                      child: Text(
+                        'or register with social platforms',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF64748B),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    // Social icons: [ G ] [ f ] [ Github ] [ in ]
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // 1. Nama Lengkap Nelayan
-                        TextFormField(
-                          controller: _namaController,
-                          decoration: const InputDecoration(
-                            labelText: 'Nama Lengkap Nelayan',
-                            hintText: "Contoh: Moh. Syafi'i",
-                            prefixIcon: Icon(Icons.person_outline_rounded),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(12)),
-                            ),
-                          ),
-                          validator: (val) {
-                            if (val == null || val.trim().isEmpty) {
-                              return 'Nama lengkap nelayan wajib diisi';
+                        _buildSocialSquareButton(
+                          icon: Icons.g_mobiledata_rounded,
+                          size: 32,
+                          color: const Color(0xFFEA4335),
+                          onTap: () {
+                            ref
+                                .read(authNotifierProvider.notifier)
+                                .simulateGoogleLoginNelayan();
+                            if (Navigator.canPop(context)) {
+                              Navigator.pop(context);
                             }
-                            return null;
                           },
                         ),
-
-                        const SizedBox(height: 14),
-
-                        // 2. Alamat Email / Gmail Nelayan
-                        TextFormField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            labelText: 'Alamat Email / Gmail',
-                            hintText: 'Contoh: syafii.nelayan@gmail.com',
-                            prefixIcon: Icon(Icons.email_outlined),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(12)),
-                            ),
-                          ),
-                          validator: (val) {
-                            if (val == null || val.trim().isEmpty) {
-                              return 'Alamat Email / Gmail wajib diisi';
-                            }
-                            final clean = val.trim().toLowerCase();
-                            if (!clean.contains('@') || !clean.contains('.')) {
-                              return 'Format email tidak valid (contoh: nelayan@gmail.com)';
-                            }
-                            return null;
-                          },
+                        const SizedBox(width: 14),
+                        _buildSocialSquareButton(
+                          label: 'f',
+                          color: const Color(0xFF1877F2),
+                          onTap: () {},
                         ),
-
-                        const SizedBox(height: 14),
-
-                        // 3. Nomor HP / WhatsApp
-                        TextFormField(
-                          controller: _noHpController,
-                          keyboardType: TextInputType.phone,
-                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                          decoration: const InputDecoration(
-                            labelText: 'Nomor Handphone / WhatsApp',
-                            hintText: 'Contoh: 081234567890',
-                            prefixIcon: Icon(Icons.phone_android_rounded),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(12)),
-                            ),
-                          ),
-                          validator: (val) {
-                            if (val == null || val.trim().isEmpty) {
-                              return 'Nomor HP wajib diisi';
-                            }
-                            if (val.trim().length < 10) {
-                              return 'Minimal 10 digit angka';
-                            }
-                            return null;
-                          },
+                        const SizedBox(width: 14),
+                        _buildSocialSquareButton(
+                          icon: Icons.code_rounded,
+                          size: 20,
+                          color: const Color(0xFF0F172A),
+                          onTap: () {},
                         ),
-
-                        const SizedBox(height: 14),
-
-                        // 4. Nomor Surat Rekomendasi DKP
-                        TextFormField(
-                          controller: _rekomendasiController,
-                          textCapitalization: TextCapitalization.characters,
-                          decoration: const InputDecoration(
-                            labelText: 'Nomor Surat Rekomendasi DKP',
-                            hintText: 'Contoh: REK-DKP-2026-099',
-                            prefixIcon: Icon(Icons.assignment_outlined),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(12)),
-                            ),
-                          ),
-                          validator: (val) {
-                            if (val == null || val.trim().isEmpty) {
-                              return 'Nomor surat rekomendasi wajib diisi';
-                            }
-                            return null;
-                          },
-                        ),
-
-                        const SizedBox(height: 14),
-
-                        // 5. Dropdown Kapasitas Mesin Kapal & Kuota Maksimal
-                        DropdownButtonFormField<BoatEngineTier>(
-                          initialValue: _selectedEngine,
-                          decoration: const InputDecoration(
-                            labelText: 'Kapasitas Mesin Kapal & Kuota',
-                            prefixIcon: Icon(Icons.directions_boat_outlined),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(12)),
-                            ),
-                          ),
-                          items: kBoatEngineTiers.map((tier) {
-                            return DropdownMenuItem<BoatEngineTier>(
-                              value: tier,
-                              child: Text(
-                                tier.label,
-                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (val) {
-                            if (val != null) setState(() => _selectedEngine = val);
-                          },
-                        ),
-
-                        const SizedBox(height: 14),
-
-                        // 6. Password
-                        TextFormField(
-                          controller: _passwordController,
-                          obscureText: _obscurePassword,
-                          decoration: InputDecoration(
-                            labelText: 'Kata Sandi / Password',
-                            prefixIcon: const Icon(Icons.lock_outline_rounded),
-                            border: const OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(12)),
-                            ),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                              ),
-                              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                            ),
-                          ),
-                          validator: (val) {
-                            if (val == null || val.trim().isEmpty) {
-                              return 'Password wajib diisi';
-                            }
-                            if (val.trim().length < 6) {
-                              return 'Minimal 6 karakter';
-                            }
-                            return null;
-                          },
-                        ),
-
-                        const SizedBox(height: 14),
-
-                        // 7. Konfirmasi Password
-                        TextFormField(
-                          controller: _confirmPasswordController,
-                          obscureText: _obscureConfirm,
-                          decoration: InputDecoration(
-                            labelText: 'Konfirmasi Kata Sandi',
-                            prefixIcon: const Icon(Icons.lock_reset_rounded),
-                            border: const OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(12)),
-                            ),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscureConfirm ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                              ),
-                              onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
-                            ),
-                          ),
-                          validator: (val) {
-                            if (val != _passwordController.text) {
-                              return 'Konfirmasi kata sandi tidak cocok';
-                            }
-                            return null;
-                          },
-                        ),
-
-                        const SizedBox(height: 24),
-
-                        // Tombol Daftar & Masuk
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton.icon(
-                            onPressed: authState.isLoading ? null : _handleRegister,
-                            icon: authState.isLoading
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                                  )
-                                : const Icon(Icons.how_to_reg_rounded),
-                            label: Text(
-                              authState.isLoading ? 'Mendaftarkan...' : 'Daftar & Masuk',
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                            ),
-                          ),
+                        const SizedBox(width: 14),
+                        _buildSocialSquareButton(
+                          label: 'in',
+                          color: const Color(0xFF0A66C2),
+                          onTap: () {},
                         ),
                       ],
                     ),
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // Link Kembali ke Login
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Sudah memiliki akun nelayan? ',
-                      style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text(
-                        'Masuk di sini',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
-              ],
+              ),
             ),
+
+            // ==========================================
+            // BAGIAN BAWAH: CURVED FOOTER (BRIGHT TEAL / CYAN GRADIENT)
+            // ==========================================
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF0284C7), Color(0xFF06B6D4)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(52),
+                  topRight: Radius.circular(52),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0x330284C7),
+                    blurRadius: 18,
+                    offset: Offset(0, -6),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 28),
+              child: Column(
+                children: [
+                  const Text(
+                    'Welcome Back!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Already have an Account',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      color: Color(0xFFE0F2FE),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  // Outlined Capsule Button: Login
+                  OutlinedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.white, width: 1.8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 46,
+                        vertical: 11,
+                      ),
+                    ),
+                    child: const Text(
+                      'Login',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14.5,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCapsuleInput({
+    required TextEditingController controller,
+    required String hintText,
+    required String labelText,
+    required IconData icon,
+    TextInputType? keyboardType,
+    TextCapitalization textCapitalization = TextCapitalization.none,
+    Widget? suffixAction,
+    String? Function(String?)? validator,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        textCapitalization: textCapitalization,
+        style: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 14,
+          color: Color(0xFF0F2B48),
+        ),
+        decoration: InputDecoration(
+          hintText: hintText,
+          labelText: labelText,
+          hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13.5),
+          labelStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 12.5),
+          filled: false,
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          errorBorder: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 14,
           ),
+          suffixIcon:
+              suffixAction ??
+              Icon(icon, color: const Color(0xFF334155), size: 22),
+        ),
+        validator: validator,
+      ),
+    );
+  }
+
+  Widget _buildSocialSquareButton({
+    IconData? icon,
+    String? label,
+    double size = 22,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: 50,
+        height: 48,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFCBD5E1), width: 1.2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Center(
+          child: icon != null
+              ? Icon(icon, color: color, size: size)
+              : Text(
+                  label ?? '',
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 19,
+                  ),
+                ),
         ),
       ),
     );
