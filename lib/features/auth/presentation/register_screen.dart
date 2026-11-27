@@ -369,59 +369,41 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 12),
 
-                    // or register with social platforms
-                    const Center(
-                      child: Text(
-                        'or register with social platforms',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF64748B),
-                          fontWeight: FontWeight.w500,
+                    // Tombol Daftar dengan Google
+                    SizedBox(
+                      height: 44,
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          ref
+                              .read(authNotifierProvider.notifier)
+                              .simulateGoogleLoginNelayan();
+                          if (Navigator.canPop(context)) {
+                            Navigator.pop(context);
+                          }
+                        },
+                        icon: const Icon(
+                          Icons.g_mobiledata_rounded,
+                          size: 28,
+                          color: Color(0xFFEA4335),
+                        ),
+                        label: const Text(
+                          'Daftar dengan Google',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                            color: Color(0xFF0F2B48),
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          side: const BorderSide(color: Color(0xFFCBD5E1), width: 1.2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                         ),
                       ),
-                    ),
-
-                    const SizedBox(height: 14),
-
-                    // Social icons: [ G ] [ f ] [ Github ] [ in ]
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildSocialSquareButton(
-                          icon: Icons.g_mobiledata_rounded,
-                          size: 32,
-                          color: const Color(0xFFEA4335),
-                          onTap: () {
-                            ref
-                                .read(authNotifierProvider.notifier)
-                                .simulateGoogleLoginNelayan();
-                            if (Navigator.canPop(context)) {
-                              Navigator.pop(context);
-                            }
-                          },
-                        ),
-                        const SizedBox(width: 14),
-                        _buildSocialSquareButton(
-                          label: 'f',
-                          color: const Color(0xFF1877F2),
-                          onTap: () {},
-                        ),
-                        const SizedBox(width: 14),
-                        _buildSocialSquareButton(
-                          icon: Icons.code_rounded,
-                          size: 20,
-                          color: const Color(0xFF0F172A),
-                          onTap: () {},
-                        ),
-                        const SizedBox(width: 14),
-                        _buildSocialSquareButton(
-                          label: 'in',
-                          color: const Color(0xFF0A66C2),
-                          onTap: () {},
-                        ),
-                      ],
                     ),
                   ],
                 ),
@@ -547,47 +529,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               Icon(icon, color: const Color(0xFF334155), size: 22),
         ),
         validator: validator,
-      ),
-    );
-  }
-
-  Widget _buildSocialSquareButton({
-    IconData? icon,
-    String? label,
-    double size = 22,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: 50,
-        height: 48,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFCBD5E1), width: 1.2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Center(
-          child: icon != null
-              ? Icon(icon, color: color, size: size)
-              : Text(
-                  label ?? '',
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 19,
-                  ),
-                ),
-        ),
       ),
     );
   }

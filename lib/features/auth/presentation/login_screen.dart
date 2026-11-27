@@ -411,107 +411,37 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
 
-                    // Tombol Masuk dengan Google (Simulasi Gmail)
+                    // Tombol Masuk dengan Google
                     SizedBox(
-                      height: 42,
+                      height: 44,
                       child: OutlinedButton.icon(
                         onPressed: _simulateGoogleLogin,
                         icon: const Icon(
                           Icons.g_mobiledata_rounded,
-                          size: 26,
+                          size: 28,
                           color: Color(0xFFEA4335),
                         ),
                         label: const Text(
-                          'Masuk dengan Google (Simulasi Gmail)',
+                          'Masuk dengan Google',
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
-                            fontSize: 12,
+                            fontSize: 13,
                             color: Color(0xFF0F2B48),
                           ),
                         ),
                         style: OutlinedButton.styleFrom(
                           backgroundColor: Colors.white,
-                          side: const BorderSide(color: Color(0xFFCBD5E1)),
+                          side: const BorderSide(color: Color(0xFFCBD5E1), width: 1.2),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(14),
                           ),
                         ),
                       ),
                     ),
 
                     const SizedBox(height: 14),
-
-                    // Social login divider
-                    const Center(
-                      child: Text(
-                        'or login with social platforms',
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          color: Color(0xFF64748B),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    // Social icons row: [ G ] [ f ] [ Github ] [ in ]
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildSocialSquareButton(
-                          icon: Icons.g_mobiledata_rounded,
-                          size: 28,
-                          color: const Color(0xFFEA4335),
-                          tooltip: 'Masuk dengan Google (Simulasi Gmail)',
-                          onTap: _simulateGoogleLogin,
-                        ),
-                        const SizedBox(width: 12),
-                        _buildSocialSquareButton(
-                          label: 'f',
-                          color: const Color(0xFF1877F2),
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Login Facebook segera hadir.'),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          },
-                        ),
-                        const SizedBox(width: 12),
-                        _buildSocialSquareButton(
-                          icon: Icons.code_rounded,
-                          size: 18,
-                          color: const Color(0xFF0F172A),
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Login GitHub segera hadir.'),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          },
-                        ),
-                        const SizedBox(width: 12),
-                        _buildSocialSquareButton(
-                          label: 'in',
-                          color: const Color(0xFF0A66C2),
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Login LinkedIn segera hadir.'),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 10),
 
                     // Link Daftar Akun Nelayan
                     Center(
@@ -529,9 +459,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           visualDensity: VisualDensity.compact,
                         ),
                         child: const Text(
-                          'Daftar Akun Nelayan',
+                          'Daftar Akun Nelayan Baru',
                           style: TextStyle(
-                            fontSize: 12.5,
+                            fontSize: 13,
                             fontWeight: FontWeight.bold,
                             color: AppColors.primary,
                           ),
@@ -539,7 +469,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 10),
 
                     // Akses Cepat Pengujian (Demo Login)
                     Container(
@@ -621,51 +551,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSocialSquareButton({
-    IconData? icon,
-    String? label,
-    double size = 22,
-    required Color color,
-    String? tooltip,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Tooltip(
-        message: tooltip ?? (label ?? 'Social'),
-        child: Container(
-          width: 50,
-          height: 48,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFCBD5E1), width: 1.2),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Center(
-            child: icon != null
-                ? Icon(icon, color: color, size: size)
-                : Text(
-                    label ?? '',
-                    style: TextStyle(
-                      color: color,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 19,
-                    ),
-                  ),
-          ),
         ),
       ),
     );
