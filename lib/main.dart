@@ -1,6 +1,8 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'core/constants/app_colors.dart';
 import 'core/providers/navigation_provider.dart';
 import 'features/auth/presentation/login_screen.dart';
@@ -15,8 +17,14 @@ import 'features/siantri_solar/presentation/siantri_solar_screen.dart';
 import 'features/siantri_solar/providers/siantri_provider.dart';
 import 'core/widgets/lenis_smooth_scroll.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint('Firebase initialization: $e');
+  }
+
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -24,11 +32,7 @@ void main() {
     ),
   );
 
-  runApp(
-    const ProviderScope(
-      child: AntrianSolarApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: AntrianSolarApp()));
 }
 
 class AntrianSolarApp extends ConsumerWidget {
@@ -78,7 +82,10 @@ class AntrianSolarApp extends ConsumerWidget {
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: const Color(0xFFF8FAFC),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: const BorderSide(color: AppColors.border),
@@ -95,7 +102,10 @@ class AntrianSolarApp extends ConsumerWidget {
             borderRadius: BorderRadius.circular(14),
             borderSide: const BorderSide(color: AppColors.danger),
           ),
-          labelStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 13.5),
+          labelStyle: const TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 13.5,
+          ),
           hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 13),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
@@ -135,11 +145,20 @@ class AntrianSolarApp extends ConsumerWidget {
           showUnselectedLabels: true,
           type: BottomNavigationBarType.fixed,
           elevation: 0,
-          selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5, letterSpacing: 0.2),
-          unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 11),
+          selectedLabelStyle: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 11.5,
+            letterSpacing: 0.2,
+          ),
+          unselectedLabelStyle: TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 11,
+          ),
         ),
       ),
-      home: authState.isAuthenticated ? const MainNavigationShell() : const LoginScreen(),
+      home: authState.isAuthenticated
+          ? const MainNavigationShell()
+          : const LoginScreen(),
     );
   }
 }
@@ -165,14 +184,13 @@ class MainNavigationShell extends ConsumerWidget {
     }
 
     return Scaffold(
-      body: IndexedStack(
-        index: currentIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: currentIndex, children: _screens),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          border: const Border(top: BorderSide(color: AppColors.border, width: 0.8)),
+          border: const Border(
+            top: BorderSide(color: AppColors.border, width: 0.8),
+          ),
           boxShadow: [
             BoxShadow(
               color: const Color(0xFF0F2B48).withValues(alpha: 0.05),
@@ -184,7 +202,8 @@ class MainNavigationShell extends ConsumerWidget {
         child: SafeArea(
           child: BottomNavigationBar(
             currentIndex: currentIndex,
-            onTap: (index) => ref.read(bottomNavIndexProvider.notifier).setIndex(index),
+            onTap: (index) =>
+                ref.read(bottomNavIndexProvider.notifier).setIndex(index),
             items: const [
               BottomNavigationBarItem(
                 icon: Icon(Icons.local_gas_station_outlined),

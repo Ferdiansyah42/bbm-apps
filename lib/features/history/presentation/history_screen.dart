@@ -32,12 +32,115 @@ class HistoryScreen extends ConsumerWidget {
           ref.invalidate(transactionHistoryProvider);
         },
         child: transactionsAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, _) => Center(child: Text('Gagal memuat riwayat: $err')),
+          loading: () => const Center(
+            child: Padding(
+              padding: EdgeInsets.all(32.0),
+              child: CircularProgressIndicator(),
+            ),
+          ),
+          error: (err, _) => Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  side: const BorderSide(color: AppColors.border),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(22.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: const BoxDecoration(
+                          color: AppColors.warningContainer,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.cloud_off_rounded,
+                          size: 36,
+                          color: AppColors.warning,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Server Belum Terhubung',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Server backend Laravel tidak aktif. Anda dapat menggunakan data simulasi lokal untuk melanjutkan demo pengujian.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      FilledButton.icon(
+                        onPressed: () {
+                          ref.read(useMockRepositoryProvider.notifier).setMock(true);
+                          ref.invalidate(transactionHistoryProvider);
+                        },
+                        icon: const Icon(Icons.play_circle_outline_rounded, size: 18),
+                        label: const Text('Beralih ke Data Simulasi'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
           data: (transactions) {
             if (transactions.isEmpty) {
-              return const Center(
-                child: Text('Belum ada riwayat transaksi pengisian.'),
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: const BoxDecoration(
+                          color: AppColors.surfaceVariant,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.receipt_long_outlined,
+                          size: 40,
+                          color: AppColors.textMuted,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Belum Ada Riwayat Transaksi',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        'Riwayat pengisian solar bersubsidi kapal Anda akan tercatat di sini setelah transaksi selesai diverifikasi petugas SPBN.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               );
             }
 
@@ -83,47 +186,56 @@ class HistoryScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: isAnomaly
-                            ? AppColors.dangerContainer
-                            : AppColors.primaryContainer,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(
-                        isAnomaly
-                            ? Icons.warning_amber_rounded
-                            : Icons.local_gas_station_rounded,
-                        size: 18,
-                        color: isAnomaly ? AppColors.danger : AppColors.primary,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          tx.transactionRef,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                          ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: isAnomaly
+                              ? AppColors.dangerContainer
+                              : AppColors.primaryContainer,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        Text(
-                          AppFormatters.formatDateTime(tx.createdAt),
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: AppColors.textSecondary,
-                          ),
+                        child: Icon(
+                          isAnomaly
+                              ? Icons.warning_amber_rounded
+                              : Icons.local_gas_station_rounded,
+                          size: 18,
+                          color: isAnomaly ? AppColors.danger : AppColors.primary,
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              tx.transactionRef,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            Text(
+                              AppFormatters.formatDateTime(tx.createdAt),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
@@ -198,12 +310,16 @@ class HistoryScreen extends ConsumerWidget {
                           color: AppColors.danger,
                         ),
                         const SizedBox(width: 6),
-                        Text(
-                          'Catatan Audit AI (Skor Anomali: ${((tx.anomalyScore ?? 0.86) * 100).toStringAsFixed(0)}%):',
-                          style: const TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.danger,
+                        Expanded(
+                          child: Text(
+                            'Catatan Audit AI (Skor Anomali: ${((tx.anomalyScore ?? 0.86) * 100).toStringAsFixed(0)}%):',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.danger,
+                            ),
                           ),
                         ),
                       ],

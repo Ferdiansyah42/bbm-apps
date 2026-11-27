@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/repositories/mock_spbn_repository.dart';
@@ -25,16 +26,30 @@ class HomeDashboardScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              userAsync.value?.name != null ? 'Halo, ${userAsync.value!.name}' : 'SPBN Madura',
+              userAsync.value?.name != null
+                  ? 'Halo, ${userAsync.value!.name}'
+                  : 'SPBN Madura',
               style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
             ),
             Row(
               children: [
-                const Icon(Icons.location_pin, size: 12, color: AppColors.secondary),
+                const Icon(
+                  Icons.location_pin,
+                  size: 12,
+                  color: AppColors.secondary,
+                ),
                 const SizedBox(width: 4),
-                Text(
-                  stationAsync.value?.name ?? AppConstants.defaultSpbnName,
-                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.normal),
+                Flexible(
+                  child: Text(
+                    stationAsync.value?.name ?? AppConstants.defaultSpbnName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -43,7 +58,11 @@ class HomeDashboardScreen extends ConsumerWidget {
         actions: [
           IconButton(
             tooltip: 'Keluar Akun',
-            icon: const Icon(Icons.logout_rounded, color: AppColors.textSecondary, size: 22),
+            icon: const Icon(
+              Icons.logout_rounded,
+              color: AppColors.textSecondary,
+              size: 22,
+            ),
             onPressed: () {
               ref.read(authNotifierProvider.notifier).logout();
             },
@@ -55,7 +74,9 @@ class HomeDashboardScreen extends ConsumerWidget {
           ref.invalidate(spbnStationProvider);
           ref.invalidate(recommendationLetterProvider);
           ref.invalidate(activeShipProvider);
-          await ref.read(geofenceSecurityNotifierProvider.notifier).refreshLocation();
+          await ref
+              .read(geofenceSecurityNotifierProvider.notifier)
+              .refreshLocation();
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -89,7 +110,10 @@ class HomeDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStationOperationalCard(BuildContext context, AsyncValue stationAsync) {
+  Widget _buildStationOperationalCard(
+    BuildContext context,
+    AsyncValue stationAsync,
+  ) {
     final station = stationAsync.value;
     final bool isOpen = station?.isOpen ?? true;
     final double stock = station?.stockLiters ?? 12500.0;
@@ -109,40 +133,64 @@ class HomeDashboardScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryContainer,
-                        borderRadius: BorderRadius.circular(12),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryContainer,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.local_gas_station_rounded,
+                          color: AppColors.primary,
+                          size: 24,
+                        ),
                       ),
-                      child: const Icon(Icons.local_gas_station_rounded, color: AppColors.primary, size: 24),
-                    ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Status Operasional',
-                          style: TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Status Operasional',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textSecondary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              isOpen
+                                  ? 'Dermaga SPBN Buka'
+                                  : 'SPBN Tutup Sementara',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: isOpen
+                                    ? AppColors.textPrimary
+                                    : AppColors.danger,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          isOpen ? 'Dermaga SPBN Buka' : 'SPBN Tutup Sementara',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: isOpen ? AppColors.textPrimary : AppColors.danger,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: isOpen ? AppColors.successContainer : AppColors.dangerContainer,
+                    color: isOpen
+                        ? AppColors.successContainer
+                        : AppColors.dangerContainer,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
@@ -182,12 +230,19 @@ class HomeDashboardScreen extends ConsumerWidget {
                     children: [
                       const Text(
                         'Sisa Stok Solar Hari Ini',
-                        style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.water_drop_rounded, size: 16, color: AppColors.accentSolar),
+                          const Icon(
+                            Icons.water_drop_rounded,
+                            size: 16,
+                            color: AppColors.accentSolar,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             AppFormatters.formatLiters(stock),
@@ -210,12 +265,19 @@ class HomeDashboardScreen extends ConsumerWidget {
                     children: [
                       const Text(
                         'Antrean di Dermaga',
-                        style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.directions_boat_rounded, size: 16, color: AppColors.secondary),
+                          const Icon(
+                            Icons.directions_boat_rounded,
+                            size: 16,
+                            color: AppColors.secondary,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             '$queueCount Kapal',
@@ -276,7 +338,9 @@ class HomeDashboardScreen extends ConsumerWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
         side: BorderSide(
-          color: isMocked ? AppColors.danger : (isInside ? AppColors.success : AppColors.border),
+          color: isMocked
+              ? AppColors.danger
+              : (isInside ? AppColors.success : AppColors.border),
           width: isMocked || isInside ? 1.5 : 1.0,
         ),
       ),
@@ -289,37 +353,61 @@ class HomeDashboardScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: badgeContainer,
-                        borderRadius: BorderRadius.circular(12),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: badgeContainer,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.radar_rounded,
+                          color: badgeColor,
+                          size: 24,
+                        ),
                       ),
-                      child: Icon(Icons.radar_rounded, color: badgeColor, size: 24),
-                    ),
-                    const SizedBox(width: 12),
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Radar Geofencing GPS',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Radar Geofencing GPS',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            Text(
+                              'Batas Akses Pengambilan Antrean',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          'Batas Akses Pengambilan Antrean',
-                          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                        ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
                 IconButton(
                   tooltip: 'Pindai Ulang Lokasi',
-                  icon: const Icon(Icons.refresh_rounded, color: AppColors.primary),
+                  icon: const Icon(
+                    Icons.refresh_rounded,
+                    color: AppColors.primary,
+                  ),
                   onPressed: () {
-                    ref.read(geofenceSecurityNotifierProvider.notifier).refreshLocation();
+                    ref
+                        .read(geofenceSecurityNotifierProvider.notifier)
+                        .refreshLocation();
                   },
                 ),
               ],
@@ -368,15 +456,30 @@ class HomeDashboardScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Jarak ke SPBN', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                        const Text(
+                          'Jarak ke SPBN',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
                         const SizedBox(height: 4),
                         Text(
-                          distance != null ? AppFormatters.formatDistance(distance) : 'Memindai...',
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                          distance != null
+                              ? AppFormatters.formatDistance(distance)
+                              : 'Memindai...',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                         Text(
                           'Maksimal ${AppConstants.defaultGeofenceRadiusMeters.toStringAsFixed(0)} m',
-                          style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppColors.textMuted,
+                          ),
                         ),
                       ],
                     ),
@@ -393,21 +496,34 @@ class HomeDashboardScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Akurasi Sinyal GPS', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                        const Text(
+                          'Akurasi Sinyal GPS',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
                         const SizedBox(height: 4),
                         Text(
-                          accuracy != null ? '${accuracy.toStringAsFixed(1)} m' : 'Memindai...',
+                          accuracy != null
+                              ? '${accuracy.toStringAsFixed(1)} m'
+                              : 'Memindai...',
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: (accuracy ?? 99) <= AppConstants.maxAllowedGpsAccuracyMeters
+                            color:
+                                (accuracy ?? 99) <=
+                                    AppConstants.maxAllowedGpsAccuracyMeters
                                 ? AppColors.textPrimary
                                 : AppColors.danger,
                           ),
                         ),
                         Text(
                           'Toleransi <= ${AppConstants.maxAllowedGpsAccuracyMeters.toStringAsFixed(0)} m',
-                          style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppColors.textMuted,
+                          ),
                         ),
                       ],
                     ),
@@ -429,12 +545,20 @@ class HomeDashboardScreen extends ConsumerWidget {
                 child: const Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.gpp_bad_rounded, color: AppColors.danger, size: 20),
+                    Icon(
+                      Icons.gpp_bad_rounded,
+                      color: AppColors.danger,
+                      size: 20,
+                    ),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Peringatan Keamanan Lapis 1:\nTerdeteksi modul Fake GPS/Mock Location. Hak pengambilan antrean diblokir!',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.danger),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.danger,
+                        ),
                       ),
                     ),
                   ],
@@ -457,7 +581,9 @@ class HomeDashboardScreen extends ConsumerWidget {
 
     final double remaining = letter?.remainingQuota ?? 270.0;
     final double allocated = letter?.allocatedQuota ?? 450.0;
-    final double usedRatio = allocated > 0 ? ((allocated - remaining) / allocated).clamp(0.0, 1.0) : 0.0;
+    final double usedRatio = allocated > 0
+        ? ((allocated - remaining) / allocated).clamp(0.0, 1.0)
+        : 0.0;
     final int remainingDays = letter?.remainingDays ?? 70;
 
     return Card(
@@ -475,41 +601,68 @@ class HomeDashboardScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryContainer,
-                        borderRadius: BorderRadius.circular(12),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryContainer,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.directions_boat_filled_rounded,
+                          color: AppColors.primary,
+                          size: 24,
+                        ),
                       ),
-                      child: const Icon(Icons.directions_boat_filled_rounded, color: AppColors.primary, size: 24),
-                    ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          ship?.shipName ?? 'KM Mina Jaya',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              ship?.shipName ?? 'KM Mina Jaya',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            Text(
+                              'Mesin: ${ship?.enginePk.toStringAsFixed(0) ?? "15"} PK • Kapasitas: ${ship?.gtSize.toStringAsFixed(1) ?? "3.0"} GT',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          'Mesin: ${ship?.enginePk.toStringAsFixed(0) ?? "15"} PK • Kapasitas: ${ship?.gtSize.toStringAsFixed(1) ?? "3.0"} GT',
-                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                        ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.infoContainer,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     '$remainingDays Hari Lagi',
-                    style: const TextStyle(color: AppColors.info, fontSize: 11, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: AppColors.info,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -520,13 +673,26 @@ class HomeDashboardScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Sisa Kuota Solar Rekomendasi',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                const Flexible(
+                  child: Text(
+                    'Sisa Kuota Solar Rekomendasi',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
                 ),
+                const SizedBox(width: 8),
                 Text(
                   AppFormatters.formatQuota(remaining, allocated),
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.primary),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.primary,
+                  ),
                 ),
               ],
             ),
@@ -538,7 +704,9 @@ class HomeDashboardScreen extends ConsumerWidget {
                 minHeight: 10,
                 backgroundColor: AppColors.border,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  remaining > (allocated * 0.25) ? AppColors.secondary : AppColors.warning,
+                  remaining > (allocated * 0.25)
+                      ? AppColors.secondary
+                      : AppColors.warning,
                 ),
               ),
             ),
@@ -548,11 +716,18 @@ class HomeDashboardScreen extends ConsumerWidget {
               children: [
                 Text(
                   'Terpakai: ${(usedRatio * 100).toStringAsFixed(1)}%',
-                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 Text(
                   'Sisa Kuota: ${((1.0 - usedRatio) * 100).toStringAsFixed(1)}%',
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.secondary),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.secondary,
+                  ),
                 ),
               ],
             ),
@@ -567,7 +742,10 @@ class HomeDashboardScreen extends ConsumerWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: BorderSide(color: AppColors.secondary.withValues(alpha: 0.4), width: 1.2),
+        side: BorderSide(
+          color: AppColors.secondary.withValues(alpha: 0.4),
+          width: 1.2,
+        ),
       ),
       color: AppColors.infoContainer.withValues(alpha: 0.35),
       child: Padding(
@@ -577,11 +755,23 @@ class HomeDashboardScreen extends ConsumerWidget {
           children: [
             const Row(
               children: [
-                Icon(Icons.science_rounded, size: 20, color: AppColors.secondary),
+                Icon(
+                  Icons.science_rounded,
+                  size: 20,
+                  color: AppColors.secondary,
+                ),
                 SizedBox(width: 8),
-                Text(
-                  'Simulasi Pengujian Black-Box (Uji Coba Lapangan)',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.primaryDark),
+                Expanded(
+                  child: Text(
+                    'Simulasi Pengujian Black-Box (Uji Coba Lapangan)',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryDark,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -596,11 +786,17 @@ class HomeDashboardScreen extends ConsumerWidget {
               runSpacing: 8,
               children: [
                 ActionChip(
-                  avatar: const Icon(Icons.location_on, size: 16, color: AppColors.success),
+                  avatar: const Icon(
+                    Icons.location_on,
+                    size: 16,
+                    color: AppColors.success,
+                  ),
                   label: const Text('Dermaga SPBN (Valid 15m)'),
                   backgroundColor: AppColors.successContainer,
                   onPressed: () {
-                    ref.read(geofenceSecurityNotifierProvider.notifier).simulateLocation(
+                    ref
+                        .read(geofenceSecurityNotifierProvider.notifier)
+                        .simulateLocation(
                           latitude: AppConstants.defaultSpbnLatitude + 0.0001,
                           longitude: AppConstants.defaultSpbnLongitude + 0.0001,
                           isMocked: false,
@@ -609,11 +805,17 @@ class HomeDashboardScreen extends ConsumerWidget {
                   },
                 ),
                 ActionChip(
-                  avatar: const Icon(Icons.wrong_location_outlined, size: 16, color: AppColors.danger),
+                  avatar: const Icon(
+                    Icons.wrong_location_outlined,
+                    size: 16,
+                    color: AppColors.danger,
+                  ),
                   label: const Text('Luar Radius (550m)'),
                   backgroundColor: AppColors.dangerContainer,
                   onPressed: () {
-                    ref.read(geofenceSecurityNotifierProvider.notifier).simulateLocation(
+                    ref
+                        .read(geofenceSecurityNotifierProvider.notifier)
+                        .simulateLocation(
                           latitude: AppConstants.defaultSpbnLatitude + 0.005,
                           longitude: AppConstants.defaultSpbnLongitude,
                           isMocked: false,
@@ -622,11 +824,17 @@ class HomeDashboardScreen extends ConsumerWidget {
                   },
                 ),
                 ActionChip(
-                  avatar: const Icon(Icons.gpp_bad, size: 16, color: AppColors.danger),
+                  avatar: const Icon(
+                    Icons.gpp_bad,
+                    size: 16,
+                    color: AppColors.danger,
+                  ),
                   label: const Text('Uji Fake GPS (Mock)'),
                   backgroundColor: AppColors.dangerContainer,
                   onPressed: () {
-                    ref.read(geofenceSecurityNotifierProvider.notifier).simulateLocation(
+                    ref
+                        .read(geofenceSecurityNotifierProvider.notifier)
+                        .simulateLocation(
                           latitude: AppConstants.defaultSpbnLatitude,
                           longitude: AppConstants.defaultSpbnLongitude,
                           isMocked: true,

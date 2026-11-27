@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../constants/app_constants.dart';
 import '../models/models.dart';
 import '../utils/haversine_calculator.dart';
@@ -41,7 +43,8 @@ class ActiveQueueExistsException implements Exception {
   const ActiveQueueExistsException(this.activeQueueCode);
 
   @override
-  String toString() => 'Anda sudah memiliki antrean aktif dengan kode $activeQueueCode.';
+  String toString() =>
+      'Anda sudah memiliki antrean aktif dengan kode $activeQueueCode.';
 }
 
 /// Exception jika kuota solar rekomendasi telah habis
@@ -49,7 +52,8 @@ class QuotaExhaustedException implements Exception {
   const QuotaExhaustedException();
 
   @override
-  String toString() => 'Sisa kuota surat rekomendasi Anda telah habis atau kedaluwarsa.';
+  String toString() =>
+      'Sisa kuota surat rekomendasi Anda telah habis atau kedaluwarsa.';
 }
 
 /// Implementasi Mock Repository untuk simulasi operasional SPBN Madura.
@@ -263,10 +267,13 @@ class MockSpbnRepository implements SpbnRepository {
 
     // 6. Hitung Skor Prioritas (Blueprint Bab 5.2):
     // Sp = w1 * C_nelayan + w2 * (Qsisa / Qtotal)
-    final double cNelayan = _mockUser.categoryWeight; // 1.0 (nelayan kecil <= 5 GT)
+    final double cNelayan =
+        _mockUser.categoryWeight; // 1.0 (nelayan kecil <= 5 GT)
     final double quotaRatio = _mockLetter.remainingRatio; // 270 / 450 = 0.6
-    final double priorityScore = (AppConstants.priorityWeightCategory * cNelayan) +
-        (AppConstants.priorityWeightQuota * quotaRatio); // 0.6 * 1.0 + 0.4 * 0.6 = 0.84
+    final double priorityScore =
+        (AppConstants.priorityWeightCategory * cNelayan) +
+        (AppConstants.priorityWeightQuota *
+            quotaRatio); // 0.6 * 1.0 + 0.4 * 0.6 = 0.84
 
     // 7. Terbitkan tiket baru
     final newTicket = QueueTicket(
@@ -329,10 +336,10 @@ final mockSpbnRepositoryProvider = Provider<MockSpbnRepository>((ref) {
 });
 
 /// Notifier flag apakah menggunakan Remote Laravel API atau Mock Data Simulasi.
-/// Default bernilai false (menggunakan RemoteSpbnRepository yang terhubung ke Laravel API).
+/// Default bernilai true (menggunakan MockSpbnRepository agar siap didemokan mandiri tanpa server Laravel).
 class UseMockRepositoryNotifier extends Notifier<bool> {
   @override
-  bool build() => false;
+  bool build() => true;
 
   void setMock(bool value) => state = value;
   void toggle() => state = !state;
@@ -340,17 +347,114 @@ class UseMockRepositoryNotifier extends Notifier<bool> {
 
 final useMockRepositoryProvider =
     NotifierProvider<UseMockRepositoryNotifier, bool>(
-  UseMockRepositoryNotifier.new,
-);
+      UseMockRepositoryNotifier.new,
+    );
+
+/// Fallback wrapper repository: Jika remote gagal terhubung (server offline),
+/// otomatis mengalirkan data mock lokal tanpa menampilkan error koneksi mentah ke pengguna.
+class FallbackSpbnRepository implements SpbnRepository {
+  final SpbnRepository remote;
+  final MockSpbnRepository mock;
+
+  FallbackSpbnRepository({required this.remote, required this.mock});
+
+  Future<T> _fallbackWrapper<T>(
+    Future<T> Function() remoteCall,
+    Future<T> Function() mockCall,
+  ) async {
+    try {
+      return await remoteCall();
+    } catch (_) {
+      return await mockCall();
+    }
+  }
+
+  @override
+  Future<FishermanUser> login(String identifier, {String? fcmToken}) =>
+      _fallbackWrapper(
+        () => remote.login(identifier, fcmToken: fcmToken),
+        () => mock.login(identifier, fcmToken: fcmToken),
+      );
+
+  @override
+  Future<void> logout() =>
+      _fallbackWrapper(() => remote.logout(), () => mock.logout());
+
+  @override
+  Future<FishermanUser> getFishermanProfile() => _fallbackWrapper(
+    () => remote.getFishermanProfile(),
+    () => mock.getFishermanProfile(),
+  );
+
+  @override
+  Future<Ship> getActiveShip() => _fallbackWrapper(
+    () => remote.getActiveShip(),
+    () => mock.getActiveShip(),
+  );
+
+  @override
+  Future<RecommendationLetter> getRecommendationLetter() => _fallbackWrapper(
+    () => remote.getRecommendationLetter(),
+    () => mock.getRecommendationLetter(),
+  );
+
+  @override
+  Future<SpbnStation> getSpbnStation() => _fallbackWrapper(
+    () => remote.getSpbnStation(),
+    () => mock.getSpbnStation(),
+  );
+
+  @override
+  Future<QueueTicket?> getActiveQueue() => _fallbackWrapper(
+    () => remote.getActiveQueue(),
+    () => mock.getActiveQueue(),
+  );
+
+  @override
+  Future<List<TransactionHistory>> getTransactionHistories() =>
+      _fallbackWrapper(
+        () => remote.getTransactionHistories(),
+        () => mock.getTransactionHistories(),
+      );
+
+  @override
+  Future<QueueTicket> takePriorityQueue({
+    required double userLat,
+    required double userLon,
+    required bool isMocked,
+    required double accuracy,
+  }) => _fallbackWrapper(
+    () => remote.takePriorityQueue(
+      userLat: userLat,
+      userLon: userLon,
+      isMocked: isMocked,
+      accuracy: accuracy,
+    ),
+    () => mock.takePriorityQueue(
+      userLat: userLat,
+      userLon: userLon,
+      isMocked: isMocked,
+      accuracy: accuracy,
+    ),
+  );
+
+  @override
+  Future<void> cancelQueue(int queueId) => _fallbackWrapper(
+    () => remote.cancelQueue(queueId),
+    () => mock.cancelQueue(queueId),
+  );
+}
 
 /// Provider SpbnRepository utama aplikasi yang digunakan oleh seluruh antarmuka UI.
-/// Secara default mengarah ke RemoteSpbnRepository sesuai permintaan Tahap 6.
+/// Secara default menggunakan MockSpbnRepository untuk keperluan pengujian dan demo.
 final spbnRepositoryProvider = Provider<SpbnRepository>((ref) {
   final useMock = ref.watch(useMockRepositoryProvider);
+  final mockRepo = ref.watch(mockSpbnRepositoryProvider);
   if (useMock) {
-    return ref.watch(mockSpbnRepositoryProvider);
+    return mockRepo;
   }
-  return ref.watch(remoteSpbnRepositoryProvider);
+  final remoteRepo = ref.watch(remoteSpbnRepositoryProvider);
+  return FallbackSpbnRepository(remote: remoteRepo, mock: mockRepo);
 });
 
 /// FutureProvider data profil nelayan
@@ -366,7 +470,9 @@ final activeShipProvider = FutureProvider<Ship>((ref) async {
 });
 
 /// FutureProvider data surat rekomendasi & kuota
-final recommendationLetterProvider = FutureProvider<RecommendationLetter>((ref) async {
+final recommendationLetterProvider = FutureProvider<RecommendationLetter>((
+  ref,
+) async {
   final repo = ref.watch(spbnRepositoryProvider);
   return repo.getRecommendationLetter();
 });
@@ -378,7 +484,9 @@ final spbnStationProvider = FutureProvider<SpbnStation>((ref) async {
 });
 
 /// FutureProvider riwayat transaksi
-final transactionHistoryProvider = FutureProvider<List<TransactionHistory>>((ref) async {
+final transactionHistoryProvider = FutureProvider<List<TransactionHistory>>((
+  ref,
+) async {
   final repo = ref.watch(spbnRepositoryProvider);
   return repo.getTransactionHistories();
 });
@@ -431,5 +539,5 @@ class ActiveQueueNotifier extends AsyncNotifier<QueueTicket?> {
 
 final activeQueueNotifierProvider =
     AsyncNotifierProvider<ActiveQueueNotifier, QueueTicket?>(
-  ActiveQueueNotifier.new,
-);
+      ActiveQueueNotifier.new,
+    );

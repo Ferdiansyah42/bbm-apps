@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "28281546200",
+    "project_id": "antrian-solar",
+    "storage_bucket": "antrian-solar.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:28281546200:android:289afec3a9da639ca93ead",
+        "android_client_info": {
+          "package_name": "com.example.antrian_solar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "28281546200-qlec42gmrnb95q0gqn6kk0jr2mcp530a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlPSQRsdA_-fuzpx8YALXptG0VHSudo6c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "28281546200-qlec42gmrnb95q0gqn6kk0jr2mcp530a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
