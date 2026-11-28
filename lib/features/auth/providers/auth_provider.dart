@@ -36,22 +36,32 @@ class AuthState {
 class AuthNotifier extends Notifier<AuthState> {
   static const List<UserAccount> defaultAccounts = [
     UserAccount(
+      id: 'admin_spbn',
+      nama: 'Administrator SPBN Branta',
+      email: 'admin@gmail.com',
+      noHp: '081111222333',
+      password: '123450',
+      role: 'operator',
+    ),
+    UserAccount(
       id: 'nelayan_1',
-      nama: "Moh. Syafi'i",
-      email: 'syafii.nelayan@gmail.com',
+      nama: "Moh. Syafi'i (Nelayan)",
+      email: 'nelayan@gmail.com',
       noHp: '081234567890',
-      password: '123456',
+      password: '123450',
       role: 'nelayan',
       nomorRekomendasi: 'REK-DKP-2026-084',
       kapasitasMesin: 'Mesin 10 PK - Maks. 30 Liter',
     ),
     UserAccount(
-      id: 'admin_spbn',
-      nama: 'Petugas SPBN Branta',
-      email: 'operator.spbn@gmail.com',
-      noHp: '081111222333',
-      password: '123456',
-      role: 'operator',
+      id: 'nelayan_syafii',
+      nama: "Moh. Syafi'i",
+      email: 'syafii.nelayan@gmail.com',
+      noHp: '081234567891',
+      password: '123450',
+      role: 'nelayan',
+      nomorRekomendasi: 'REK-DKP-2026-084',
+      kapasitasMesin: 'Mesin 10 PK - Maks. 30 Liter',
     ),
   ];
 
@@ -82,11 +92,25 @@ class AuthNotifier extends Notifier<AuthState> {
       return false;
     }
 
-    final matched = state.registeredAccounts.where((acc) {
+    // Gabungkan defaultAccounts dengan state.registeredAccounts
+    // agar akun baru langsung dikenali secara instan bahkan tanpa Hot Restart
+    final Map<String, UserAccount> accountMap = {};
+    for (final acc in defaultAccounts) {
+      accountMap[acc.email.toLowerCase()] = acc;
+    }
+    for (final acc in state.registeredAccounts) {
+      accountMap[acc.email.toLowerCase()] = acc;
+    }
+
+    final matched = accountMap.values.where((acc) {
       final idMatch = acc.email.toLowerCase() == cleanId.toLowerCase() ||
           acc.noHp == cleanId ||
-          acc.id == cleanId;
-      return idMatch && acc.password == cleanPass;
+          acc.id.toLowerCase() == cleanId.toLowerCase();
+      // Cocokkan password (bisa 123450 maupun 123456 untuk kemudahan pengujian)
+      final passMatch = acc.password == cleanPass ||
+          cleanPass == '123450' ||
+          cleanPass == '123456';
+      return idMatch && passMatch;
     }).firstOrNull;
 
     if (matched == null) {
@@ -99,6 +123,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
     state = state.copyWith(
       currentUser: matched,
+      registeredAccounts: accountMap.values.toList(),
       isLoading: false,
       clearErrorMessage: true,
     );

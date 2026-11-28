@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/widgets/google_logo_icon.dart';
 import '../../siantri_solar/models/siantri_models.dart';
 import '../models/user_account.dart';
 import '../providers/auth_provider.dart';
@@ -373,8 +374,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                     // Tombol Daftar dengan Google
                     SizedBox(
-                      height: 44,
-                      child: OutlinedButton.icon(
+                      height: 46,
+                      child: OutlinedButton(
                         onPressed: () {
                           ref
                               .read(authNotifierProvider.notifier)
@@ -383,25 +384,28 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             Navigator.pop(context);
                           }
                         },
-                        icon: const Icon(
-                          Icons.g_mobiledata_rounded,
-                          size: 28,
-                          color: Color(0xFFEA4335),
-                        ),
-                        label: const Text(
-                          'Daftar dengan Google',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 13,
-                            color: Color(0xFF0F2B48),
-                          ),
-                        ),
                         style: OutlinedButton.styleFrom(
                           backgroundColor: Colors.white,
                           side: const BorderSide(color: Color(0xFFCBD5E1), width: 1.2),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
+                          elevation: 0,
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            GoogleLogoIcon(size: 20),
+                            SizedBox(width: 10),
+                            Text(
+                              'Daftar dengan Google',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13.5,
+                                color: Color(0xFF0F2B48),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
